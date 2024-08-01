@@ -7,28 +7,24 @@ void hlt()
         ;
 }
 
-void putc(char ch) {
-    uint16_t port = 0xE9;
-    __asm__ volatile ("outb %0, %1" : : "a"(ch), "Nd"(port));
+void outb(uint16_t port, uint8_t value) {
+    __asm__ volatile("outb %1, %0" : : "dN"(port), "a"(value));
 }
 
+void putc(char ch) {
+    outb(0xE9, ch);
+}
+
+void print(const char* str) {
+    char* data = (char*)str;
+    while(*data) {
+        putc(*data);
+        data++;
+    }
+}  
 
 void _start() {
-    putc('\033');
-    putc('c');
-    putc('K');
-    putc('E');
-    putc('R');
-    putc('N');
-    putc('E');
-    putc('L');
-    putc(' ');
-    putc('L');
-    putc('O');
-    putc('A');
-    putc('D');
-    putc('E');
-    putc('D');
-    
+    print("\033c");
+    print("info: Kernel loaded");
     hlt();
 }
