@@ -53,7 +53,7 @@ $(TARGET_BOOT): $(BOOT_DIR)/sphynxboot.efi | $(BIN_DIR)
 $(TARGET_TEST): kernel
 
 $(BOOT_DIR)/sphynxboot.efi: $(BOOT_DIR)
-	@$(MAKE) -C $(BOOT_DIR) ROOT=$(ROOT_DIR) DEPS_DIR=$(DEPS_DIR)
+	@$(MAKE) -C $(BOOT_DIR)
 
 $(BIN_DIR):
 	@echo " + mkdir -p $(BIN_DIR)"
@@ -71,7 +71,7 @@ bootloader:
 	@$(MAKE) -C $(BOOT_DIR)
 
 .PHONY: test
-test: | all $(TARGET_BOOT) $(TARGET_TEST) $(OVMF)
+test: all
 	@if [ "$(shell uname -s)" = "Darwin" ]; then \
 	    dd if=/dev/zero of=boot.img bs=1m count=64; \
 	    mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
