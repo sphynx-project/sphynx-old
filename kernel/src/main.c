@@ -21,8 +21,8 @@ void print(const char* s) {
 } 
 
 void _start() {
-    print("\033c");
+    putc('\033');
+    putc('c');
     print("info: Kernel loaded");
-    putc('A');
     hlt();
 }
