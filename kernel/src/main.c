@@ -15,16 +15,14 @@ void putc(char ch) {
     outb(0xE9, ch);
 }
 
-void print(const char* str) {
-    char* data = (char*)str;
-    while(*data) {
-        putc(*data);
-        data++;
-    }
-}  
+void print(const char* s) {
+    while (*s) 
+        outb(0xe9, *s++);
+} 
 
 void _start() {
     print("\033c");
     print("info: Kernel loaded");
+    putc('A');
     hlt();
 }
