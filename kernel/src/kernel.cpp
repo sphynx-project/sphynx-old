@@ -5,16 +5,16 @@
 #include <stddef.h>
 
 extern "C" void* memset(void* d, int c, size_t n) {
-    auto* p = static_cast<char*>(d);
+    unsigned char* p = static_cast<unsigned char*>(d);
     while (n--) {
-        *p++ = c;
+        *p++ = static_cast<unsigned char>(c);
     }
     return d;
 }
 
 extern "C" void* memcpy(void* dest, const void* src, size_t n) {
-    auto* p1 = static_cast<char*>(dest);
-    auto* p2 = static_cast<const char*>(src);
+    unsigned char* p1 = static_cast<unsigned char*>(dest);
+    const unsigned char* p2 = static_cast<const unsigned char*>(src);
     while (n--) {
         *p1++ = *p2++;
     }
@@ -58,6 +58,5 @@ extern "C" void _start(boot_t* data) {
         hlt();
     }
 
-    ft_ctx->raw_putchar(ft_ctx, 'A');
     hlt();
 }
