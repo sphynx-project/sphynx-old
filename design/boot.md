@@ -1,7 +1,3 @@
-Certainly! Here's how you can format the Table of Contents using a list:
-
----
-
 # sphynx - Boot Process
 
 *Note: This document is not finished yet*
