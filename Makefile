@@ -1,7 +1,6 @@
 MAKEFLAGS += --no-print-directory
 
-# Dependencies
-DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/v1.x.x-alpha.zip
+DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/v1.x.x-alpha.zip flanterm=https://github.com/mintsuki/flanterm/archive/refs/heads/trunk.zip
 DEPS_DIR := deps
 TMP_DIR := $(shell mktemp -d)
 
@@ -69,7 +68,7 @@ $(BIN_DIR):
 setup: $(BIN_DIR)
 
 .PHONY: kernel
-kernel:
+kernel: deps-download-flanterm
 	@echo " + $(MAKE) -C $(KERNEL_DIR)"
 	@$(MAKE) -C $(KERNEL_DIR)
 

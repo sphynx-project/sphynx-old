@@ -3,10 +3,9 @@ C = clang
 ASM = nasm
 LD = ld.lld
 
-CFLAGS = -O3 -Wall -Werror -g -ffreestanding -Wno-writable-strings -Wno-int-conversion -Wno-infinite-recursion \
+CFLAGS = -O0 -Wall -Werror -g -ffreestanding -Wno-int-conversion -Wno-infinite-recursion \
          -fno-stack-protector -fno-stack-check -fno-omit-frame-pointer -fno-lto -fPIE -m64 \
          -march=x86-64 -mabi=sysv -mno-80387 -mno-mmx -msse -msse2 -mno-red-zone --target=x86_64-pc-none-elf
-
 CFLAGS += -I../deps/sphynxboot -I../deps
 CXXFLAGS = $(CFLAGS)
 
@@ -14,8 +13,8 @@ LDFLAGS = -nostdlib -static -m elf_x86_64 -z max-page-size=0x1000 -T linker.ld
 
 TARGET = kernel.elf
 
-SOURCES_CPP = $(shell find src -name '*.cpp')
-SOURCES_C = $(shell find src -name '*.c')
+SOURCES_CPP = $(shell find src -name '*.cpp') $(shell find ../deps/flanterm -name '*.cpp')
+SOURCES_C = $(shell find src -name '*.c') $(shell find ../deps/flanterm -name '*.c')
 SOURCES_ASM = $(shell find src -name '*.asm')
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_ASM)
 

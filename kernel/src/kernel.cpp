@@ -1,6 +1,25 @@
 #include <sphynxboot.h>
+#include <flanterm/flanterm.h>
+#include <flanterm/backends/fb.h>
 #include <stdint.h>
 #include <stddef.h>
+
+extern "C" void* memset(void* d, int c, size_t n) {
+    unsigned char* p = static_cast<unsigned char*>(d);
+    while (n--) {
+        *p++ = static_cast<unsigned char>(c);
+    }
+    return d;
+}
+
+extern "C" void* memcpy(void* dest, const void* src, size_t n) {
+    unsigned char* p1 = static_cast<unsigned char*>(dest);
+    const unsigned char* p2 = static_cast<const unsigned char*>(src);
+    while (n--) {
+        *p1++ = *p2++;
+    }
+    return dest;
+}
 
 [[noreturn]] void hlt() {
     __asm__ volatile("hlt");
@@ -18,34 +37,39 @@ void outb(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %1, %0" : : "dN"(port), "a"(value));
 }
 
-void putc(char ch) {
-    outb(0xE9, ch);
-}
-
-void puts(const char* str) {
-    if (str == nullptr) {
-        putc('R');
-        return;
-    }
-
-    if (*str == '\0') {
-        putc('E');
-        return;
-    }
-
-    while (*str) {
-        putc(*str++);
-    }
+void dprint(const char* str) {
+    while(*str)
+        outb(0xE9, *str++);
 }
 
 extern "C" void _start(boot_t* data) {
     if (!data || data->framebuffer->address == 0) {
-        putc('E');
+        dprint("ERROR: Failed to get ");
+        if(!data)
+            dprint("boot info");
+        else
+            dprint("framebuffer");
+        dprint("\n");
         hcf();
     }
 
+    auto* ft_ctx = flanterm_fb_init(
+        nullptr, nullptr, reinterpret_cast<uint32_t *>(data->framebuffer->address),
+        data->framebuffer->width, data->framebuffer->height,
+        data->framebuffer->pitch, data->framebuffer->red_mask_size,
+        data->framebuffer->red_mask_shift, data->framebuffer->green_mask_size,
+        data->framebuffer->green_mask_shift, data->framebuffer->blue_mask_size,
+        data->framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, nullptr,
+        nullptr, nullptr, nullptr, nullptr, 0, 0, 1, 0, 0, 0
+    );
     
-    puts("Hello, World!");
+    if (!ft_ctx) {
+        dprint("ERROR: Failed to initialize flanterm\n");
+        hlt();
+    }
+
+    const char msg[] = "Hello world\n";
+    flanterm_write(ft_ctx, msg, sizeof(msg));
 
     hlt();
 }
