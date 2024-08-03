@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+struct flanterm_context* ft_ctx;
+
 extern "C" void* memset(void* d, int c, size_t n) {
     unsigned char* p = static_cast<unsigned char*>(d);
     while (n--) {
@@ -42,6 +44,15 @@ void dprint(const char* str) {
         outb(0xE9, *str++);
 }
 
+void _putc(char ch) {
+    flanterm_write(ft_ctx, &ch, sizeof(ch));
+}
+
+void print(const char* str) {
+    while(*str)
+        _putc(*str++);
+}
+
 extern "C" void _start(boot_t* data) {
     if (!data || data->framebuffer->address == 0) {
         dprint("ERROR: Failed to get ");
@@ -53,7 +64,7 @@ extern "C" void _start(boot_t* data) {
         hcf();
     }
 
-    auto* ft_ctx = flanterm_fb_init(
+    ft_ctx = flanterm_fb_init(
         nullptr, nullptr, reinterpret_cast<uint32_t *>(data->framebuffer->address),
         data->framebuffer->width, data->framebuffer->height,
         data->framebuffer->pitch, data->framebuffer->red_mask_size,
@@ -68,8 +79,12 @@ extern "C" void _start(boot_t* data) {
         hlt();
     }
 
-    const char msg[] = "Hello world\n";
-    flanterm_write(ft_ctx, msg, sizeof(msg));
+    ft_ctx->cursor_enabled = false;
+    ft_ctx->full_refresh(ft_ctx);
+
+    print("Sphynx v0.0.1 (Bootloader: ");
+    print(data->info->name);
+    print(")\n");
 
     hlt();
 }
