@@ -18,19 +18,34 @@ void outb(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %1, %0" : : "dN"(port), "a"(value));
 }
 
-void puts(char* str) {
-    while (*str)
-        outb(0xE9, *str++);
+void putc(char ch) {
+    outb(0xE9, ch);
+}
+
+void puts(const char* str) {
+    if (str == nullptr) {
+        putc('R');
+        return;
+    }
+
+    if (*str == '\0') {
+        putc('E');
+        return;
+    }
+
+    while (*str) {
+        putc(*str++);
+    }
 }
 
 extern "C" void _start(boot_t* data) {
     if (!data || data->framebuffer->address == 0) {
-        outb(0xE9, 'E');
+        putc('E');
         hcf();
     }
 
-    puts("Hello, World!\n");
-
+    
+    puts("Hello, World!");
 
     hlt();
 }
