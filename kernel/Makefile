@@ -13,8 +13,8 @@ LDFLAGS = -nostdlib -static -m elf_x86_64 -z max-page-size=0x1000 -T linker.ld
 
 TARGET = kernel.elf
 
-SOURCES_CPP = $(shell find src -name '*.cpp') $(shell find ../deps/flanterm -name '*.cpp')
-SOURCES_C = $(shell find src -name '*.c') $(shell find ../deps/flanterm -name '*.c')
+SOURCES_CPP = $(shell find src -name '*.cpp')
+SOURCES_C = $(shell find src -name '*.c')
 SOURCES_ASM = $(shell find src -name '*.asm')
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_ASM)
 
