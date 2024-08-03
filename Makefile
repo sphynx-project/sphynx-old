@@ -1,7 +1,7 @@
 MAKEFLAGS += --no-print-directory
 
 # Dependencies
-DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/main.zip flanterm=https://github.com/mintsuki/flanterm/archive/refs/heads/trunk.zip
+DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/v1.x.x-alpha.zip flanterm=https://github.com/mintsuki/flanterm/archive/refs/heads/trunk.zip
 DEPS_DIR := deps
 TMP_DIR := $(shell mktemp -d)
 
@@ -14,6 +14,8 @@ TARGET_BOOT := $(BIN_DIR)/BOOTX64.efi
 
 OVMF := $(DEPS_DIR)/ovmf/RELEASEX64_OVMF.fd
 ROOT_DIR := $(shell pwd)
+
+BOOT_CONF := $(KERNEL_DIR)/boot.conf
 
 all: setup deps-download-sphynxboot kernel $(TARGET_BOOT)
 
@@ -78,7 +80,8 @@ gen-img: all
 	    mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
 	    mmd -i boot.img ::/EFI ::/EFI/BOOT; \
 	    mcopy -i boot.img $(TARGET_BOOT) ::/EFI/BOOT/BOOTX64.efi; \
-		mcopy -i $(TARGET_TEST) ::/boot/kernel/kernel; \
+		mcopy -i $(TARGET_TEST) ::/sphynx/kernel.elf; \
+		mcopy -i $(BOOT_CONF) ::boot.conf; \
 	else \
 	    dd if=/dev/zero of=boot.img bs=1M count=64; \
 	    mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
@@ -86,8 +89,10 @@ gen-img: all
 	    sudo mount -o loop boot.img mnt; \
 	    sudo mkdir -p mnt/EFI/BOOT; \
 	    sudo mkdir -p mnt/boot/kernel; \
+	    sudo mkdir -p mnt/sphynx; \
 	    sudo cp $(TARGET_BOOT) mnt/EFI/BOOT/BOOTX64.efi; \
-		sudo cp $(TARGET_TEST) mnt/boot/kernel/kernel; \
+		sudo cp $(TARGET_TEST) mnt/sphynx/kernel.elf; \
+		sudo cp $(BOOT_CONF) mnt/boot.conf; \
 	    sudo umount mnt; \
 	    rm -rf mnt; \
 	fi
