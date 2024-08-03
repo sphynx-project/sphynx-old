@@ -4,11 +4,11 @@
 
 ## Table of Contents
 
-1. [Source Files](#10-source-files)
-   - [1.1 Functions](#11-functions)
+1. [Style](#10-style)
+   - [1.1 Code](#11-code)
 
-## 1.0 Source Files
+## 1.0 Style
 
-### 1.1 Functions
+### 1.1 Code
 
-*todo*
+Sphynx uses `snake_case` for functions, `camelCase` for variables, `PascalCase` for classes, namespaces, enums, etc.

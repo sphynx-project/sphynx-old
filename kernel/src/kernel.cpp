@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-struct flanterm_context* ft_ctx;
+struct flanterm_context* ftCtx;
 
 extern "C" void* memset(void* d, int c, size_t n) {
     unsigned char* p = static_cast<unsigned char*>(d);
@@ -24,41 +24,41 @@ extern "C" void* memcpy(void* dest, const void* src, size_t n) {
     return dest;
 }
 
-[[noreturn]] void hlt() {
+[[noreturn]] void halt() {
     __asm__ volatile("hlt");
     while (true) { }
 }
 
 [[noreturn]] void hcf() {
     __asm__ volatile("cli");
-    hlt();
+    halt();
 }
 
-void outb(uint16_t port, uint8_t value) {
+void out_byte(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %1, %0" : : "dN"(port), "a"(value));
 }
 
-void dprint(const char* str) {
+void debug_print(const char* str) {
     while (*str) {
-        outb(0xE9, *str++);
+        out_byte(0xE9, *str++);
     }
 }
 
-void _putc(char ch) {
-    flanterm_write(ft_ctx, &ch, sizeof(ch));
+void putc(char ch) {
+    flanterm_write(ftCtx, &ch, sizeof(ch));
 }
 
 void print(const char* str) {
     while (*str) {
-        _putc(*str++);
+        putc(*str++);
     }
 }
 
 void itoa(int value, char* buffer, int base) {
     char* ptr = buffer;
     char* ptr1 = buffer;
-    char tmp_char;
-    int tmp_value;
+    char tmpChar;
+    int tmpValue;
 
     if (value == 0) {
         *ptr++ = '0';
@@ -71,11 +71,11 @@ void itoa(int value, char* buffer, int base) {
         value = -value;
     }
 
-    tmp_value = value;
-    while (tmp_value) {
-        int rem = tmp_value % base;
+    tmpValue = value;
+    while (tmpValue) {
+        int rem = tmpValue % base;
         *ptr++ = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        tmp_value /= base;
+        tmpValue /= base;
     }
 
     if (isNegative) {
@@ -84,9 +84,9 @@ void itoa(int value, char* buffer, int base) {
     *ptr = '\0';
 
     while (ptr1 < --ptr) {
-        tmp_char = *ptr1;
+        tmpChar = *ptr1;
         *ptr1++ = *ptr;
-        *ptr = tmp_char;
+        *ptr = tmpChar;
     }
 }
 
@@ -107,12 +107,12 @@ void printf(const char* fmt, ...) {
                     print(buffer);
                     break;
                 default:
-                    _putc('%');
-                    _putc(*p);
+                    putc('%');
+                    putc(*p);
                     break;
             }
         } else {
-            _putc(*p);
+            putc(*p);
         }
     }
 
@@ -121,13 +121,13 @@ void printf(const char* fmt, ...) {
 
 extern "C" void _start(boot_t* data) {
     if (!data || !data->framebuffer || data->framebuffer->address == 0) {
-        dprint("ERROR: Failed to get ");
-        dprint(!data ? "boot info" : "framebuffer");
-        dprint("\n");
+        debug_print("ERROR: Failed to get ");
+        debug_print(!data ? "boot info" : "framebuffer");
+        debug_print("\n");
         hcf();
     }
 
-    ft_ctx = flanterm_fb_init(
+    ftCtx = flanterm_fb_init(
         nullptr, nullptr, reinterpret_cast<uint32_t*>(data->framebuffer->address),
         data->framebuffer->width, data->framebuffer->height,
         data->framebuffer->pitch, data->framebuffer->red_mask_size,
@@ -137,16 +137,16 @@ extern "C" void _start(boot_t* data) {
         nullptr, nullptr, nullptr, nullptr, 0, 0, 1, 0, 0, 0
     );
 
-    if (!ft_ctx) {
-        dprint("ERROR: Failed to initialize flanterm\n");
-        hlt();
+    if (!ftCtx) {
+        debug_print("ERROR: Failed to initialize flanterm\n");
+        halt();
     }
 
-    ft_ctx->cursor_enabled = false;
-    ft_ctx->full_refresh(ft_ctx);
+    ftCtx->cursor_enabled = false;
+    ftCtx->full_refresh(ftCtx);
 
     printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
     printf("- Screen: %dx%d", data->framebuffer->width, data->framebuffer->height);
 
-    hlt();
+    halt();
 }
