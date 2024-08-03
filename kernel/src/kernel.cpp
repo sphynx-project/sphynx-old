@@ -3,6 +3,7 @@
 #include <flanterm/backends/fb.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 struct flanterm_context* ft_ctx;
 
@@ -30,9 +31,7 @@ extern "C" void* memcpy(void* dest, const void* src, size_t n) {
 
 [[noreturn]] void hcf() {
     __asm__ volatile("cli");
-    while (true) {
-        hlt();
-    }
+    hlt();
 }
 
 void outb(uint16_t port, uint8_t value) {
@@ -40,8 +39,9 @@ void outb(uint16_t port, uint8_t value) {
 }
 
 void dprint(const char* str) {
-    while(*str)
+    while (*str) {
         outb(0xE9, *str++);
+    }
 }
 
 void _putc(char ch) {
@@ -49,23 +49,86 @@ void _putc(char ch) {
 }
 
 void print(const char* str) {
-    while(*str)
+    while (*str) {
         _putc(*str++);
+    }
+}
+
+void itoa(int value, char* buffer, int base) {
+    char* ptr = buffer;
+    char* ptr1 = buffer;
+    char tmp_char;
+    int tmp_value;
+
+    if (value == 0) {
+        *ptr++ = '0';
+        *ptr = '\0';
+        return;
+    }
+
+    bool isNegative = (value < 0 && base == 10);
+    if (isNegative) {
+        value = -value;
+    }
+
+    tmp_value = value;
+    while (tmp_value) {
+        int rem = tmp_value % base;
+        *ptr++ = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        tmp_value /= base;
+    }
+
+    if (isNegative) {
+        *ptr++ = '-';
+    }
+    *ptr = '\0';
+
+    while (ptr1 < --ptr) {
+        tmp_char = *ptr1;
+        *ptr1++ = *ptr;
+        *ptr = tmp_char;
+    }
+}
+
+void printf(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    char buffer[32];
+
+    for (const char* p = fmt; *p; p++) {
+        if (*p == '%') {
+            p++;
+            switch (*p) {
+                case 's':
+                    print(va_arg(args, const char*));
+                    break;
+                case 'd':
+                    itoa(va_arg(args, int), buffer, 10);
+                    print(buffer);
+                    break;
+                default:
+                    _putc('%');
+                    _putc(*p);
+                    break;
+            }
+        } else {
+            _putc(*p);
+        }
+    }
+
+    va_end(args);
 }
 
 extern "C" void _start(boot_t* data) {
-    if (!data || data->framebuffer->address == 0) {
+    if (!data || !data->framebuffer || data->framebuffer->address == 0) {
         dprint("ERROR: Failed to get ");
-        if(!data)
-            dprint("boot info");
-        else
-            dprint("framebuffer");
+        dprint(!data ? "boot info" : "framebuffer");
         dprint("\n");
         hcf();
     }
 
     ft_ctx = flanterm_fb_init(
-        nullptr, nullptr, reinterpret_cast<uint32_t *>(data->framebuffer->address),
+        nullptr, nullptr, reinterpret_cast<uint32_t*>(data->framebuffer->address),
         data->framebuffer->width, data->framebuffer->height,
         data->framebuffer->pitch, data->framebuffer->red_mask_size,
         data->framebuffer->red_mask_shift, data->framebuffer->green_mask_size,
@@ -73,7 +136,7 @@ extern "C" void _start(boot_t* data) {
         data->framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, nullptr,
         nullptr, nullptr, nullptr, nullptr, 0, 0, 1, 0, 0, 0
     );
-    
+
     if (!ft_ctx) {
         dprint("ERROR: Failed to initialize flanterm\n");
         hlt();
@@ -82,9 +145,8 @@ extern "C" void _start(boot_t* data) {
     ft_ctx->cursor_enabled = false;
     ft_ctx->full_refresh(ft_ctx);
 
-    print("Sphynx v0.0.1 (Bootloader: ");
-    print(data->info->name);
-    print(")\n");
+    printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
+    printf("Screen: %dx%d", data->framebuffer->width, data->framebuffer->height);
 
     hlt();
 }
