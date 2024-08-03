@@ -1,5 +1,8 @@
-#include <stdint.h>
 #include <sphynxboot.h>
+#include <flanterm/flanterm.h>
+#include <flanterm/backends/fb.h>
+#include <stdint.h>
+#include <stddef.h>
 
 void hlt()
 {
@@ -12,28 +15,41 @@ void outb(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %1, %0" : : "dN"(port), "a"(value));
 }
 
-
-void putpixel(framebuffer_t *fb, uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
-    if (x >= fb->width || y >= fb->height) {
-        return;
+void * memset(void *d, int c, size_t n) {
+  char *p = (char *)d;
+  while (n--)
+    {
+      *p++ = c;
     }
+  return d;
+}
 
-    uint32_t *pixel_addr = (uint32_t *)(fb->address + y * fb->pitch + x * (fb->bpp / 8));
+void *memcpy(void *dest, const void *src, size_t n) {
+  char *p1 = (char *)dest;
+  char *p2 = (char *)src;
 
-    uint32_t color = 0xFF000000 | (r << 16) | (g << 8) | b;
-
-    *pixel_addr = color;
+  while (n--)
+    {
+      *p1++ = *p2++;
+    }
+  return dest;
 }
 
 void _start(boot_t *data) {
     if(data->framebuffer->address == 0) {
         outb(0xE9, 'E');
+        hlt();
     }
 
-    for(int x = 0; x < 100; x++) {
-        for(int y = 0; y < 100; y++) {
-            putpixel(data->framebuffer, x, y, 255, 255, 255);
-        }
+    
+    struct flanterm_context *ft_ctx = flanterm_fb_init(NULL, NULL, data->framebuffer->address, data->framebuffer->width, data->framebuffer->height, data->framebuffer->pitch, data->framebuffer->red_mask_size, data->framebuffer->red_mask_shift, data->framebuffer->green_mask_size, data->framebuffer->green_mask_shift, data->framebuffer->blue_mask_size, data->framebuffer->blue_mask_shift, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, 0, 0, 0);
+    if(ft_ctx == NULL) {
+        outb(0xE9, 'E');
+        hlt();
     }
+
+    const char msg[] = "Hello world\n";
+    flanterm_write(ft_ctx, msg, sizeof(msg));
+
     hlt();
 }

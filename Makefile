@@ -1,7 +1,7 @@
 MAKEFLAGS += --no-print-directory
 
 # Dependencies
-DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/main.zip
+DEPS := ovmf=https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd sphynxboot=https://github.com/sphynxos/sphynxboot/archive/refs/heads/main.zip flanterm=https://github.com/mintsuki/flanterm/archive/refs/heads/trunk.zip
 DEPS_DIR := deps
 TMP_DIR := $(shell mktemp -d)
 
@@ -52,7 +52,6 @@ $(TARGET_BOOT): $(BOOT_DIR)/bin/BOOTX64.efi | $(BIN_DIR)
 	@cp $(BOOT_DIR)/bin/BOOTX64.efi $(TARGET_BOOT)
 
 $(TARGET_TEST): kernel
-
 $(OVMF): deps-download-ovmf
 
 $(BOOT_DIR)/bin/BOOTX64.efi: bootloader
@@ -65,7 +64,7 @@ $(BIN_DIR):
 setup: $(BIN_DIR)
 
 .PHONY: kernel
-kernel:
+kernel: deps-download-flanterm
 	@$(MAKE) -C $(KERNEL_DIR)
 
 .PHONY: bootloader
