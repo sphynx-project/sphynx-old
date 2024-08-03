@@ -146,7 +146,7 @@ extern "C" void _start(boot_t* data) {
     ft_ctx->full_refresh(ft_ctx);
 
     printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
-    printf("Screen: %dx%d", data->framebuffer->width, data->framebuffer->height);
+    printf("- Screen: %dx%d", data->framebuffer->width, data->framebuffer->height);
 
     hlt();
 }
