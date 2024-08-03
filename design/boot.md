@@ -37,6 +37,8 @@ kernel=/sphynx/kernel.elf
 **Available Keys:**
 
 - **kernel:** *Specifies the path to the kernel file.*
+- **instant_boot:** *Specifies if you want to boot the kernel on start or on user event. Possible values (everything else is handled as a no):*
+   - ***yes, true, on***: *Turns it on*
 
 ## 2.0 Kernel Initialization
 
