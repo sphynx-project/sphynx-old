@@ -30,6 +30,8 @@ Description: Common CPU functions and utilities
 
 #pragma once
 
+#include <common.hpp>
+
 [[noreturn]] static inline void halt() {
     __asm__ volatile("hlt");
     while (true) { }

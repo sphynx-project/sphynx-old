@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: tty.hpp
+File: config.hpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,21 +25,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Sphynx TTY system
+Description: Sphynx config file
 */
 
 #pragma once
 
-#include <common.hpp>
-
-int kprintf(const char* fmt, ...);
-int kdprintf(const char* fmt, ...);
-
-#define kmprintf(fmt, ...) kprintf(fmt, ##__VA_ARGS__); \
-                           kdprintf(fmt, ##__VA_ARGS__);
-
-#if SPHYNX_MIRROR_PRINTF
-#define printf(fmt, ...) kmprintf(fmt, ##__VA_ARGS__);
-#else
-#define printf(fmt, ...) kprintf(fmt, ##__VA_ARGS__);
-#endif
+#define SPHYNX_MIRROR_PRINTF 0

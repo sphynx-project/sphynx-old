@@ -31,6 +31,7 @@ Description: POSIX C string functions
 #pragma once
 
 #include <stddef.h>
+#include <common.hpp>
 
 extern "C" {
     void* memset(void* d, int c, size_t n);

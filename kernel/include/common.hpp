@@ -30,6 +30,7 @@ Description: Common modules for the OS
 
 #pragma once
 
+#include <config.hpp>
 #include <sphynxboot.h>
 #include <flanterm/flanterm.h>
 #include <flanterm/backends/fb.h>

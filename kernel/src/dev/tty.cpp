@@ -46,8 +46,14 @@ typedef long ssize_t;
 #define NANOPRINTF_IMPLEMENTATION
 #include <external/nanoprintf.h>
 
+#include <dev/serial.hpp>
+
 void _putc(char ch) {
     flanterm_write(ftCtx, &ch, sizeof(ch));
+}
+
+void _dputc(char ch) {
+    Serial::outb(0xE9, ch);
 }
 
 int kprintf(const char* fmt, ...) {
@@ -65,6 +71,27 @@ int kprintf(const char* fmt, ...) {
     
     for (int i = 0; i < length; ++i) {
         _putc(buffer[i]);
+    }
+    
+    return length;
+}
+
+
+int kdprintf(const char* fmt, ...) {
+    char buffer[1024];
+    va_list args;
+    
+    va_start(args, fmt);
+    
+    int length = npf_vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    
+    if (length < 0 || length >= (int)sizeof(buffer)) {
+        return -1;
+    }
+    
+    for (int i = 0; i < length; ++i) {
+        _dputc(buffer[i]);
     }
     
     return length;
