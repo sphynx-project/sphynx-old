@@ -3,6 +3,7 @@
 #include <dev/tty.hpp>
 #include <sys/cpu.hpp>
 #include <core/gdt.hpp>
+#include <core/idt.hpp>
 
 struct flanterm_context* ftCtx;
 struct boot *boot_info;
@@ -46,5 +47,9 @@ extern "C" void _start(boot_t* data) {
 
     GDT::init();
     DINFO("GDT Initialized");
+    IDT::init();
+    DINFO("IDT Initialized");
+    __asm__ volatile("int $1");
+
     halt();
 }
