@@ -54,9 +54,21 @@ extern "C" void _start(boot_t* data) {
         kpanic(nullptr, "Sphynx got no ramfs, expected ramfs in /sphynx/ramfs");
     }
 
-    ramfs = data->ramfs;    
+    ramfs = data->ramfs;
     DINFO("ramfs loaded");
     printf("%.*s\n", ramfs->size, static_cast<char*>(ramfs->address));
+
+    if(data->memory_map == nullptr) {
+        kpanic(nullptr, "Failed to get memory map");
+    }
+
+    
+    memory_map_t *memory_map = data->memory_map;
+    for(int i = 0; i < memory_map->region_count; i++) {
+        if(memory_map->regions[i].type == MEMMAP_USABLE) {
+            printf("Usable entry at 0x%.16llx\n", memory_map->regions[i].base_address);
+        }
+    }
 
     halt();
 }
