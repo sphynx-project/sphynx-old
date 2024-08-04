@@ -25,12 +25,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Implementation of the Sphynx TTY system
+Description: Sphynx TTY system
 */
 
 #include <dev/tty.hpp>
 #include <common.hpp>
 #include <stdarg.h>
+
+// TODO: Make proper TTY system
+
+#define NANOPRINTF_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 1
+#define NANOPRINTF_USE_PRECISION_FORMAT_SPECIFIERS 1
+#define NANOPRINTF_USE_FLOAT_FORMAT_SPECIFIERS 0
+#define NANOPRINTF_USE_LARGE_FORMAT_SPECIFIERS 1
+#define NANOPRINTF_USE_BINARY_FORMAT_SPECIFIERS 0
+#define NANOPRINTF_USE_WRITEBACK_FORMAT_SPECIFIERS 0
+#define NANOPRINTF_SNPRINTF_SAFE_TRIM_STRING_ON_OVERFLOW 1
+typedef long ssize_t;
 
 #define NANOPRINTF_IMPLEMENTATION
 #include <external/nanoprintf.h>
@@ -39,7 +50,7 @@ void _putc(char ch) {
     flanterm_write(ftCtx, &ch, sizeof(ch));
 }
 
-int printf(const char* fmt, ...) {
+int kprintf(const char* fmt, ...) {
     char buffer[1024];
     va_list args;
     
