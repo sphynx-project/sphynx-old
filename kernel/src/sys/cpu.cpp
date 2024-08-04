@@ -104,4 +104,5 @@ void kpanic(IDT::int_frame_t *frame, const char* reason) {
     KMPRINTF("  (TODO)\n");
 
     KMPRINTF("==================================================================================\n");
+    hcf();
 }

@@ -7,6 +7,7 @@
 
 struct flanterm_context* ftCtx;
 struct boot *boot_info;
+struct file *ramfs;
 struct framebuffer *framebuffer;
 
 extern "C" void _start(boot_t* data) {
@@ -41,14 +42,21 @@ extern "C" void _start(boot_t* data) {
 
     ftCtx->cursor_enabled = false;
     ftCtx->full_refresh(ftCtx);
+    DINFO("Flanterm Initialized");
 
-    printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
-    printf(" - Screen: %dx%d\n", framebuffer->width, framebuffer->height);
+    if(data->ramfs == nullptr) {
+        kpanic(nullptr, "Sphynx got no ramfs, expected ramfs in /sphynx/ramfs");
+    }
+
+    ramfs = data->ramfs;    
+    DINFO("ramfs loaded");
 
     GDT::init();
     DINFO("GDT Initialized");
     IDT::init();
     DINFO("IDT Initialized");
+    
+    printf("%.*s\n", ramfs->size, static_cast<char*>(ramfs->address));
 
     halt();
 }

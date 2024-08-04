@@ -37,6 +37,7 @@ Description: Common modules for the OS
 
 extern struct boot *boot_info;
 extern struct framebuffer *framebuffer;
+extern struct file *ramfs;
 extern struct flanterm_context* ftCtx;
 
 #define __packed __attribute((packed))
