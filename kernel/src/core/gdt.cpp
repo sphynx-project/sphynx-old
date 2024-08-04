@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: common.hpp
+File: gdt.cpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,18 +25,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Common modules for the OS
+Description: Sphynx GDT
 */
 
-#pragma once
+#include <core/gdt.hpp>
 
-#include <config.hpp>
-#include <sphynxboot.h>
-#include <flanterm/flanterm.h>
-#include <flanterm/backends/fb.h>
+namespace GDT {
+	gdtr_t gdtr;
 
-extern struct boot *boot_info;
-extern struct framebuffer *framebuffer;
-extern struct flanterm_context* ftCtx;
+	struct __packed {
+		descriptor_t entries[5];
+	} gdt;
 
-#define __packed __attribute((packed))
+	void init() {
+		gdt.entries[0] = (descriptor_t){0,0,0,0,0,0};
+		gdt.entries[1] = (descriptor_t){0, 0, 0, 0b10011010, 0b10100000, 0};
+		gdt.entries[2] = (descriptor_t){0, 0, 0, 0b10010010, 0b10100000, 0};
+		gdt.entries[3] = (descriptor_t){0, 0, 0, 0b11111010, 0b10100000, 0};
+		gdt.entries[4] = (descriptor_t){0, 0, 0, 0b11110010, 0b10100000, 0};
+		gdtr.size = (uint16_t)(sizeof(gdt) - 1);
+		gdtr.offset = (uintptr_t)&gdt;
+		reload();
+	}
+
+	void reload() {
+	    asm volatile (
+	        "mov %0, %%rdi\n"
+	        "lgdt (%%rdi)\n"
+	        "push $0x8\n"
+	        "lea 1f(%%rip), %%rax\n"
+	        "push %%rax\n"
+	        "lretq\n"
+	        "1:\n"
+	        "mov $0x10, %%ax\n"
+	        "mov %%ax, %%es\n"
+	        "mov %%ax, %%ss\n"
+	        "mov %%ax, %%ds\n"
+	        :
+	        : "r" (&gdtr)
+	        : "memory"
+	    );
+	}
+}

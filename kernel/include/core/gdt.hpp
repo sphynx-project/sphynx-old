@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: common.hpp
+File: gdt.hpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,18 +25,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Common modules for the OS
+Description: Sphynx GDT
 */
 
 #pragma once
 
-#include <config.hpp>
-#include <sphynxboot.h>
-#include <flanterm/flanterm.h>
-#include <flanterm/backends/fb.h>
+#include <stdint.h>
+#include <common.hpp>
 
-extern struct boot *boot_info;
-extern struct framebuffer *framebuffer;
-extern struct flanterm_context* ftCtx;
+namespace GDT {
+	typedef struct {
+	    uint16_t limit_low;
+	    uint16_t base_low;
+	    uint8_t base_mid;
+	    uint8_t access_byte;
+	    uint8_t limit_high_and_flags;
+	    uint8_t base_high;
+	} __packed descriptor_t;
 
-#define __packed __attribute((packed))
+	typedef struct {
+	    uint16_t limit_low;
+	    uint16_t base_low;
+	    uint8_t base_mid;
+	    uint8_t access_byte;
+	    uint8_t limit_high_and_flags;
+	    uint8_t base_high;
+	    uint32_t base;
+	    uint32_t reserved;
+	} __packed descriptor_ex_t;
+
+	typedef struct {
+	    uint16_t size;
+	    uintptr_t offset;
+	} __packed gdtr_t;
+
+	extern gdtr_t gdtr;
+
+	void init();
+	void reload();
+}

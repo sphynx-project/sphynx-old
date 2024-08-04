@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <dev/tty.hpp>
 #include <sys/cpu.hpp>
+#include <core/gdt.hpp>
 
 struct flanterm_context* ftCtx;
 struct boot *boot_info;
@@ -42,5 +43,8 @@ extern "C" void _start(boot_t* data) {
 
     printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
     printf(" - Screen: %dx%d\n", framebuffer->width, framebuffer->height);
+
+    GDT::init();
+    DINFO("GDT Initialized");
     halt();
 }
