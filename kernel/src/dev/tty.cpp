@@ -30,56 +30,31 @@ Description: Implementation of the Sphynx TTY system
 
 #include <dev/tty.hpp>
 #include <common.hpp>
-#include <stdlib/string.hpp>
+#include <stdarg.h>
+
+#define NANOPRINTF_IMPLEMENTATION
+#include <external/nanoprintf.h>
 
 void _putc(char ch) {
     flanterm_write(ftCtx, &ch, sizeof(ch));
 }
 
-void write_number(int num) {
-    char buffer[12];
-    int i = 0;
-    bool is_negative = num < 0;
-    if (is_negative) {
-        num = -num;
+int printf(const char* fmt, ...) {
+    char buffer[1024];
+    va_list args;
+    
+    va_start(args, fmt);
+    
+    int length = npf_vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    
+    if (length < 0 || length >= (int)sizeof(buffer)) {
+        return -1;
     }
-    do {
-        buffer[i++] = '0' + (num % 10);
-        num /= 10;
-    } while (num > 0);
-    if (is_negative) {
-        buffer[i++] = '-';
+    
+    for (int i = 0; i < length; ++i) {
+        _putc(buffer[i]);
     }
-    while (i > 0) {
-        _putc(buffer[--i]);
-    }
-}
-
-template <>
-void tty_write<char>(char ch) {
-    _putc(ch);
-}
-
-template <>
-void tty_write<const char*>(const char* str) {
-    while (*str) {
-        _putc(*str++);
-    }
-}
-
-template <>
-void tty_write<char*>(char* str) {
-    while (*str) {
-        _putc(*str++);
-    }
-}
-
-template <>
-void tty_write<int>(int num) {
-    write_number(num);
-}
-
-template <>
-void tty_write<unsigned int>(unsigned int num) {
-    write_number(num);
+    
+    return length;
 }

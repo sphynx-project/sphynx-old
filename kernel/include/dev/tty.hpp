@@ -30,5 +30,4 @@ Description: Sphynx TTY system
 
 #pragma once
 
-template <typename T>
-void tty_write(T arg);
+int printf(const char* fmt, ...);

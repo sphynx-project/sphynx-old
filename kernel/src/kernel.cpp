@@ -46,14 +46,7 @@ extern "C" void _start(boot_t* data) {
     ftCtx->cursor_enabled = false;
     ftCtx->full_refresh(ftCtx);
 
-    tty_write("Sphynx v0.0.1 (Bootloader: ");
-    tty_write(data->info->name);
-    tty_write(")\n");
-    tty_write(" - Screen: ");
-    tty_write(framebuffer->width);
-    tty_write("x");
-    tty_write(framebuffer->height);
-    tty_write("\n");
-
+    printf("Sphynx v0.0.1 (Bootloader: %s)\n", data->info->name);
+    printf(" - Screen: %dx%d\n", framebuffer->width, framebuffer->height);
     halt();
 }
