@@ -49,7 +49,6 @@ extern "C" void _start(boot_t* data) {
     DINFO("GDT Initialized");
     IDT::init();
     DINFO("IDT Initialized");
-    __asm__ volatile("int $1");
 
     halt();
 }

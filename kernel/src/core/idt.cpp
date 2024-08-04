@@ -41,6 +41,41 @@ namespace IDT {
     IDT::idt_entry_t idt[IDT_ENTRIES];
     IDT::idt_pointer_t idt_p;
 
+    static const char* reasons[32] = {
+        "Division by Zero",
+        "Debug",
+        "Non-Maskable-Interrupt",
+        "Breakpoint",
+        "Overflow",
+        "Bound Range Exceeded",
+        "Invalid opcode",
+        "Device (FPU) not available",
+        "Double Fault",
+        "Resereved Vector",
+        "Invalid TSS",
+        "Segment not present",
+        "Stack Segment Fault",
+        "General Protection Fault ",
+        "Page Fault ",
+        "Resereved Vector",
+        "x87 FP Exception",
+        "Alignment Check",
+        "Machine Check (Internal Error)",
+        "SIMD FP Exception",
+        "Virtualization Exception",
+        "Control  Protection Exception",
+        "Resereved Vector",
+        "Resereved Vector",
+        "Resereved Vector",
+        "Resereved Vector",
+        "Resereved Vector",
+        "Resereved Vector",
+        "Hypervisor Injection Exception",
+        "VMM Communication Exception",
+        "Security Exception",
+        "Resereved Vector"
+    };
+
     void set_gate(uint8_t interrupt, uintptr_t base, int8_t flags) {
         idt_entry_t *descriptor = &idt[interrupt];
 
@@ -70,61 +105,9 @@ namespace IDT {
         __asm__ volatile("cli");
     }
 
-    void capture_regs(int_frame_t *context) {
-        asm volatile (
-            "movq %%rax, %0\n\t"
-            "movq %%rbx, %1\n\t"
-            "movq %%rcx, %2\n\t"
-            "movq %%rdx, %3\n\t"
-            "movq %%rsi, %4\n\t"
-            "movq %%rdi, %5\n\t"
-            "movq %%rbp, %6\n\t"
-            "movq %%r8,  %7\n\t"
-            "movq %%r9,  %8\n\t"
-            "movq %%r10, %9\n\t"
-            "movq %%r11, %10\n\t"
-            "movq %%r12, %11\n\t"
-            "movq %%r13, %12\n\t"
-            "movq %%r14, %13\n\t"
-            "movq %%r15, %14\n\t"
-            : "=m" (context->rax), "=m" (context->rbx), "=m" (context->rcx), "=m" (context->rdx),
-            "=m" (context->rsi), "=m" (context->rdi), "=m" (context->rbp), "=m" (context->r8),
-            "=m" (context->r9), "=m" (context->r10), "=m" (context->r11), "=m" (context->r12),
-            "=m" (context->r13), "=m" (context->r14), "=m" (context->r15)
-            :
-            : "memory"
-        );
-
-        asm volatile (
-            "movq %%cs,  %0\n\t"
-            "movq %%ss,  %1\n\t"
-            "movq %%es,  %2\n\t"
-            "movq %%ds,  %3\n\t"
-            "movq %%cr0, %4\n\t"
-            "movq %%cr2, %5\n\t"
-            "movq %%cr3, %6\n\t"
-            "movq %%cr4, %7\n\t"
-            : "=r" (context->cs), "=r" (context->ss), "=r" (context->es), "=r" (context->ds),
-            "=r" (context->cr0), "=r" (context->cr2), "=r" (context->cr3), "=r" (context->cr4)
-            :
-            : "memory"
-        );
-
-        asm volatile (
-            "movq %%rsp, %0\n\t"
-            "pushfq\n\t"
-            "popq %1\n\t"
-            : "=r" (context->rsp), "=r" (context->rflags)
-            :
-            : "memory"
-        );
-
-        context->rip = (uint64_t)__builtin_return_address(0);
-    }
-
     extern "C" void excp_handler(IDT::int_frame_t frame) {
         if(frame.vector < 0x20) {
-            printf("panic @ 0x%.16llx (vector: 0x%.2x)\n", frame.rip, frame.vector);
+            kpanic(&frame, reasons[frame.vector]);
             hcf();
         } else if(frame.vector >= 0x20 && frame.vector <= 0x2f) {
             // TODO: IRQs

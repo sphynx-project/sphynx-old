@@ -31,6 +31,7 @@ Description: Common CPU functions and utilities
 #pragma once
 
 #include <common.hpp>
+#include <core/idt.hpp>
 
 [[noreturn]] static inline void halt() {
     __asm__ volatile("hlt");
@@ -41,3 +42,5 @@ Description: Common CPU functions and utilities
     __asm__ volatile("cli");
     halt();
 }
+
+void kpanic(IDT::int_frame_t *frame, const char* reason);

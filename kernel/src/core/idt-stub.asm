@@ -27,46 +27,34 @@ load_idt:
     push r13
     push r14
     push r15
-
     mov rax, cr3
     push rax
     mov rax, cr2
     push rax
-    mov rax, cr0
-    push rax
-    mov rax, cr4
-    push rax
-    
     mov rax, ds
     push rax
 %endmacro
 
-
 %macro popaq 0
     pop rax
-    
     pop rax
     pop rax
-    pop rax
-    pop rax
-
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop r11
-    pop r10
-    pop r9
-    pop r8
-    pop rbp
-    pop rdi
-    pop rsi
-    pop rdx
-    pop rcx
-    pop rbx
-    pop rax
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rbp
+	pop rdi
+	pop rsi
+	pop rdx
+	pop rcx
+	pop rbx
+	pop rax
 %endmacro
-
 
 extern excp_handler
 
