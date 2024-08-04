@@ -67,8 +67,6 @@ void tty_write<const char*>(const char* str) {
     }
 }
 
-
-
 template <>
 void tty_write<char*>(char* str) {
     while (*str) {

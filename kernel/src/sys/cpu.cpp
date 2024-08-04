@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: common.hpp
+File: cpu.cpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,15 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Common modules for the OS
+Description: Common CPU functions and utilities
 */
 
-#pragma once
-
-#include <sphynxboot.h>
-#include <flanterm/flanterm.h>
-#include <flanterm/backends/fb.h>
-
-extern struct boot *boot_info;
-extern struct framebuffer *framebuffer;
-extern struct flanterm_context* ftCtx;
+#include <sys/cpu.hpp>
