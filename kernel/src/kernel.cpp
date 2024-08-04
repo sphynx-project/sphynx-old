@@ -44,18 +44,18 @@ extern "C" void _start(boot_t* data) {
     ftCtx->full_refresh(ftCtx);
     DINFO("Flanterm Initialized");
 
+    GDT::init();
+    DINFO("GDT Initialized");
+    IDT::init();
+    DINFO("IDT Initialized");
+    
+
     if(data->ramfs == nullptr) {
         kpanic(nullptr, "Sphynx got no ramfs, expected ramfs in /sphynx/ramfs");
     }
 
     ramfs = data->ramfs;    
     DINFO("ramfs loaded");
-
-    GDT::init();
-    DINFO("GDT Initialized");
-    IDT::init();
-    DINFO("IDT Initialized");
-    
     printf("%.*s\n", ramfs->size, static_cast<char*>(ramfs->address));
 
     halt();
