@@ -3,10 +3,11 @@ C = clang
 ASM = nasm
 LD = ld.lld
 
-CFLAGS = -O0 -Wall -Werror -g -ffreestanding -Wno-int-conversion -Wno-infinite-recursion \
-         -fno-stack-protector -fno-stack-check -fno-omit-frame-pointer -fno-lto -fPIE -m64 \
-         -march=x86-64 -mabi=sysv -mno-80387 -mno-mmx -msse -msse2 -mno-red-zone --target=x86_64-pc-none-elf
-CFLAGS += -I../deps/sphynxboot -I../deps
+CFLAGS = -O0 -Wall -Werror -g -ffreestanding -Wno-instantiation-after-specialization -Wno-int-conversion -Wno-infinite-recursion \
+         -fno-stack-protector -fno-stack-check -fno-omit-frame-pointer -fno-lto -m64 \
+         -march=x86-64 -mabi=sysv -mno-80387 -mno-mmx -mno-red-zone -fno-pie --target=x86_64-pc-none-elf \
+         -fno-builtin -mno-sse -mno-sse2 -mno-avx
+CFLAGS += -I../deps/sphynxboot -I../deps -Iinclude
 CXXFLAGS = $(CFLAGS)
 
 LDFLAGS = -nostdlib -static -m elf_x86_64 -z max-page-size=0x1000 -T linker.ld
