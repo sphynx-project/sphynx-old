@@ -28,7 +28,7 @@ SOFTWARE.
 Description: POSIX C string functions
 */
 
-#include <stdlib/string.hpp>
+#include <string.hpp>
 
 extern "C" void* memset(void* d, int c, size_t n) {
     unsigned char* p = static_cast<unsigned char*>(d);

@@ -30,7 +30,7 @@ Description: Common CPU functions and utilities
 
 #include <sys/cpu.hpp>
 #include <dev/tty.hpp>
-#include <stdlib/string.hpp>
+#include <string.hpp>
 
 void _kpanic_print_reg(const char* name, uint64_t value) {
     KMPRINTF("  %-10s: 0x%016llx\n", name, value);

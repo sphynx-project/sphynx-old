@@ -40,4 +40,4 @@ extern struct framebuffer *framebuffer;
 extern struct file *ramfs;
 extern struct flanterm_context* ftCtx;
 
-#define __packed __attribute((packed))
+#define __packed __attribute__((packed))

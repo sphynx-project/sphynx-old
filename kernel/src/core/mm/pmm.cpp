@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: pmm.hpp
+File: pmm.cpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -28,12 +28,21 @@ SOFTWARE.
 Description: Sphynx physical memory manager
 */
 
-#pragma once
-
-#include <common.hpp>
-#include <stdint.h>
+#include <core/mm/pmm.hpp>
+#include <math_utils.hpp>
+#include <dev/tty.hpp>
+#include <sys/cpu.hpp>
 
 namespace PMM {
-    void init(memory_map_t *memmap);
-    uint64_t get_free();
+    void init(memory_map_t *memmap) {
+        if(memmap == nullptr) {
+            kpanic(nullptr, "NULL Memory map passed to PMM::init");
+        }
+
+        kpanic(nullptr, "Physical memory manager isnt ready yet");
+    }
+
+    uint64_t get_free() {
+        return 0;
+    }
 }

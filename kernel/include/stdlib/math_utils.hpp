@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: pmm.hpp
+File: math_utils.hpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: Sphynx physical memory manager
+Description: Math related utility functions
 */
 
 #pragma once
@@ -33,7 +33,28 @@ Description: Sphynx physical memory manager
 #include <common.hpp>
 #include <stdint.h>
 
-namespace PMM {
-    void init(memory_map_t *memmap);
-    uint64_t get_free();
-}
+#define MAX(x, y) (x > y ? x : y)
+#define MIN(x, y) (x < y ? x : y)
+
+#define DIV_ROUNDUP(x, y) (((x) + (y) - 1) / (y))
+#define DIV_ROUNDDOWN(x, y) (x / y)
+
+#define BITMAP_SET_BIT(bitmap, bit_index) ((bitmap)[(bit_index) / 8] |= (1 << ((bit_index) % 8)))
+#define BITMAP_UNSET_BIT(bitmap, bit_index) ((bitmap)[(bit_index) / 8] &= ~(1 << ((bit_index) % 8)))
+#define BITMAP_READ_BIT(bitmap, bit_index) ((bitmap)[(bit_index) / 8] & (1 << ((bit_index) % 8)))
+#define BITMAP_CLEAR(bitmap, size) do { \
+    for (size_t i = 0; i < size; i++) { \
+        (bitmap)[i] = 0; \
+    } \
+} while (0)
+
+#define ALIGN_UP(x, base) (((x) + (base) - 1) & ~((base) - 1))
+#define ALIGN_DOWN(x, base) ((x) & ~((base) - 1))
+
+#define POW(base, exponent) ({ \
+    uint64_t out = 1; \
+    for (uint64_t i = 0; i < exponent; i++) { \
+        out *= base; \
+    } \
+    out; \
+})
