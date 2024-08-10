@@ -1,1 +1,1 @@
-Sphynx OS v0.0.1 (Gaia)
+Sphynx v0.0.1

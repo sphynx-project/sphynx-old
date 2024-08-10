@@ -39,7 +39,6 @@ namespace PMM {
             kpanic(nullptr, "NULL Memory map passed to PMM::init");
         }
 
-        kpanic(nullptr, "Physical memory manager isnt ready yet");
     }
 
     uint64_t get_free() {

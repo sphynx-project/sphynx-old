@@ -57,7 +57,7 @@ extern "C" void _start(boot_t* data) {
 
     ramfs = data->ramfs;
     DINFO("ramfs loaded");
-    printf("%.*s\n", ramfs->size, static_cast<char*>(ramfs->address));
+    printf("%.*s (%s)", ramfs->size, static_cast<char*>(ramfs->address), data->info->name);
 
     if(data->memory_map == nullptr) {
         kpanic(nullptr, "Failed to get memory map");
@@ -66,7 +66,6 @@ extern "C" void _start(boot_t* data) {
     
     memory_map_t *memory_map = data->memory_map;
     PMM::init(memory_map);
-    DINFO("Physical Memory Manager loaded (%d bytes free)", PMM::get_free());
 
     halt();
 }
