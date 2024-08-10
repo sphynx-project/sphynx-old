@@ -36,4 +36,6 @@ Description: Sphynx physical memory manager
 namespace PMM {
     void init(memory_map_t *memmap);
     uint64_t get_free();
+    void* request_pages(uint64_t page_count);
+    void free_pages(void* ptr);
 }
