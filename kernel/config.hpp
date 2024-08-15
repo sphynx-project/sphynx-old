@@ -31,4 +31,8 @@ Description: Sphynx config file
 #pragma once
 
 #define SPHYNX_MIRROR_PRINTF 1
-#define SPHYNX_VERBOSE 0
+#define SPHYNX_VERBOSE 1
+#define SPHYNX_DEBUG 1
+#define SPHYNX_SIMPLE_PANIC 1
+#define SPHYNX_DUMP_REG_ON_INT 0
+#define SPHYNX_VERBOSE_IDT 0

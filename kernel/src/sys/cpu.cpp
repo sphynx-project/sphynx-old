@@ -32,62 +32,68 @@ Description: Common CPU functions and utilities
 #include <dev/tty.hpp>
 #include <string.hpp>
 
-void _kpanic_print_reg(const char* name, uint64_t value) {
-    DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", name, value);
-}
-
 void _kpanic_handler(IDT::int_frame_t *frame, const char* file, int line, const char* reason) {
-    KMPRINTF("\033[31mKernel panic at \"%s:%d\", Reason: \"%s\"!\033[0m\n", file, line, reason);
-    DPRINTF("\033[31m--------------------\033[0m\n");
+    #if SPHYNX_SIMPLE_PANIC
+    KMPRINTF("\033[31mKernel Panic @ CPU %s (0x%.16llx), Reason: \"%s\", %s:%d\n", "???", (frame == nullptr) ? 0x0 : frame->rip, reason, file, line);
+    #else
+    KMPRINTF("\n\033[31mKernel panic - cpu %s: %s\033[0m\n", "???", reason);
+    KMPRINTF("\033[31mIn file: %s, line: %d\033[0m\n", file, line);
 
+    #if SPHYNX_VERBOSE_IDT
     if (frame != nullptr) {
+        DPRINTF("\033[31mRegister dump:\033[0m\n");
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "CR2", frame->cr2);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "CR3", frame->cr3);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RAX", frame->rax);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RBX", frame->rbx);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RCX", frame->rcx);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RDX", frame->rdx);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RSI", frame->rsi);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RDI", frame->rdi);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RBP", frame->rbp);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R8 ", frame->r8);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R9 ", frame->r9);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R10", frame->r10);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R11", frame->r11);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R12", frame->r12);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R13", frame->r13);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R14", frame->r14);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "R15", frame->r15);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RIP", frame->rip);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "CS ", frame->cs);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RFLAGS", frame->rflags);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RSP", frame->rsp);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "SS ", frame->ss);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "DS ", frame->ds);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "ERR", frame->err);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "VECTOR", frame->vector);
+    }
+    #else
+    #if SPHYNX_DUMP_REG_ON_INT
+    if (frame != nullptr) {
+        DPRINTF("\033[31mBasic register dump:\033[0m\n");
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RIP", frame->rip);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RSP", frame->rsp);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "RFLAGS", frame->rflags);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "CS ", frame->cs);
+        DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", "SS ", frame->ss);
+    }
+    #endif
+    #endif
 
-        DPRINTF("\033[31mREGISTER STATE:\033[0m\n");
-        _kpanic_print_reg("CR2", frame->cr2);
-        _kpanic_print_reg("CR3", frame->cr3);
-        _kpanic_print_reg("RAX", frame->rax);
-        _kpanic_print_reg("RBX", frame->rbx);
-        _kpanic_print_reg("RCX", frame->rcx);
-        _kpanic_print_reg("RDX", frame->rdx);
-        _kpanic_print_reg("RSI", frame->rsi);
-        _kpanic_print_reg("RDI", frame->rdi);
-        _kpanic_print_reg("RBP", frame->rbp);
-        _kpanic_print_reg("R8 ", frame->r8);
-        _kpanic_print_reg("R9 ", frame->r9);
-        _kpanic_print_reg("R10", frame->r10);
-        _kpanic_print_reg("R11", frame->r11);
-        _kpanic_print_reg("R12", frame->r12);
-        _kpanic_print_reg("R13", frame->r13);
-        _kpanic_print_reg("R14", frame->r14);
-        _kpanic_print_reg("R15", frame->r15);
-        _kpanic_print_reg("RIP", frame->rip);
-        _kpanic_print_reg("CS ", frame->cs);
-        _kpanic_print_reg("RFLAGS", frame->rflags);
-        _kpanic_print_reg("RSP", frame->rsp);
-        _kpanic_print_reg("SS ", frame->ss);
-        _kpanic_print_reg("DS ", frame->ds);
-        _kpanic_print_reg("ERR", frame->err);
-        _kpanic_print_reg("VECTOR", frame->vector);
-
-        if (frame->vector == 14) {
-            DPRINTF("\033[31mEXCEPTION INFO:\033[0m\n");
-            DPRINTF("\033[31m  Page Fault Details:\033[0m\n");
-            DPRINTF("    Operation:        %s\n", (frame->err & 0x1) ? "Protection Violation" : "Non-Present Page");
-            DPRINTF("    Access Type:      %s\n", (frame->err & 0x2) ? "Write" : "Read");
-            DPRINTF("    Privilege Level: %s\n", (frame->err & 0x4) ? "User Mode" : "Supervisor Mode");
-            if (frame->err & 0x8) DPRINTF("    Reserved Write:  Yes\n");
-            if (frame->err & 0x10) DPRINTF("    Instruction Fetch: Yes\n");
-        } else {
-            DPRINTF("\033[31mEXCEPTION INFO:\033[0m\n");
-            DPRINTF("  Interrupt Number:  %lu\n", frame->vector);
-            DPRINTF("  Error Code:        0x%016llx\n", frame->err);
-        }
+    if (frame != nullptr && frame->vector == 14) {
+        DPRINTF("\033[31mPage Fault Details:\033[0m\n");
+        DPRINTF("\033[31m  Operation: %s\033[0m\n", (frame->err & 0x1) ? "Protection Violation" : "Non-Present Page");
+        DPRINTF("\033[31m  Access Type: %s\033[0m\n", (frame->err & 0x2) ? "Write" : "Read");
+        DPRINTF("\033[31m  Privilege Level: %s\033[0m\n", (frame->err & 0x4) ? "User Mode" : "Supervisor Mode");
+        if (frame->err & 0x8) DPRINTF("\033[31m  Reserved Write: Yes\033[0m\n");
+        if (frame->err & 0x10) DPRINTF("\033[31m  Instruction Fetch: Yes\033[0m\n");
     }
 
-    kdprintf("\033[31mSTACK TRACE:\n\033[0m");
-    kdprintf("\033[31m  (TODO)\n");
+    KMPRINTF("\033[31mStack trace:\033[0m\n");
+    KMPRINTF("\033[31m  (TODO: Implement stack trace)\033[0m\n");
 
-    DPRINTF("\033[31m\033[0m");
+    #endif
 
     hcf();
 }

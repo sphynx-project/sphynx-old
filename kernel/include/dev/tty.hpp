@@ -57,11 +57,11 @@ int kdprintf(const char* fmt, ...);
 class Logger {
 public:
     enum Level {
+        DEBUG,
         INFO,
         OK,
         WARN,
         ERROR,
-        DEBUG
     };
 
     Logger(const char* name) : name(name), level(INFO) {}
@@ -75,26 +75,14 @@ public:
 
         const char* color = get_color(lvl);
         const char* kind = get_kind(lvl);
-        if(lvl == DEBUG) {
-            kdprintf("%s[%s] [%s] ", color, kind, name);
+        printf("%s[%-6s] [%-10s] ", color, kind, name);
 
-            va_list args;
-            va_start(args, fmt);
-            kdprintf(fmt, args);
-            va_end(args);
+        va_list args;
+        va_start(args, fmt);
+        printf(fmt, args);
+        va_end(args);
 
-            kdprintf("\033[0m");
-        } else {
-            printf("%s[%s] [%s] ", color, kind, name);
-
-            va_list args;
-            va_start(args, fmt);
-            printf(fmt, args);
-            va_end(args);
-
-            printf("\033[0m");
-        }
-
+        printf("\033[0m");
     }
 
     void info(const char* fmt, ...) const {
@@ -138,11 +126,11 @@ private:
 
     const char* get_color(Level lvl) const {
         switch (lvl) {
-            case INFO: return "\033[0m";
-            case OK: return "\033[32m";
-            case WARN: return "\033[33m";
-            case ERROR: return "\033[31m";
-            case DEBUG: return "\033[35m";
+            case INFO: return "\x1b[38;2;235;203;244m";
+            case OK: return "\x1b[38;2;191;204;148m";
+            case WARN: return "\x1b[38;2;255;215;0m";
+            case ERROR: return "\x1b[38;2;255;69;58m";
+            case DEBUG: return "\x1b[38;2;141;145;139m";
             default: return "\033[0m";
         }
     }
