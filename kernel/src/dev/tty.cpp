@@ -30,9 +30,6 @@ Description: Sphynx TTY system
 
 #include <dev/tty.hpp>
 #include <common.hpp>
-#include <stdarg.h>
-
-// TODO: Make proper TTY system
 
 #define NANOPRINTF_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 1
 #define NANOPRINTF_USE_PRECISION_FORMAT_SPECIFIERS 1
@@ -75,7 +72,6 @@ int kprintf(const char* fmt, ...) {
     
     return length;
 }
-
 
 int kdprintf(const char* fmt, ...) {
     char buffer[1024];

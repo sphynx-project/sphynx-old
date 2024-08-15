@@ -30,5 +30,5 @@ Description: Sphynx config file
 
 #pragma once
 
-#define SPHYNX_MIRROR_PRINTF 0
+#define SPHYNX_MIRROR_PRINTF 1
 #define SPHYNX_VERBOSE 0

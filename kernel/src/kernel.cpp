@@ -66,7 +66,7 @@ extern "C" void _start(boot_t* data) {
         framebuffer->red_mask_shift, framebuffer->green_mask_size,
         framebuffer->green_mask_shift, framebuffer->blue_mask_size,
         framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, &defaultBg,
-        &defaultFg, nullptr, nullptr, nullptr, 0, 0, 1, 1, 1, 0
+        &defaultFg, nullptr, nullptr, nullptr, 0, 0, 1, 1, 1, 5
     );
 
     if (!ftCtx) {
@@ -76,12 +76,14 @@ extern "C" void _start(boot_t* data) {
 
     ftCtx->cursor_enabled = false;
     ftCtx->full_refresh(ftCtx);
-    DINFO("Flanterm Initialized");
+    Logger logger("SphynxMain");
+    logger.log(Logger::Level::INFO, "Flanterm Initialized\n");
+    
 
     GDT::init();
-    DINFO("GDT Initialized");
+    logger.log(Logger::Level::INFO, "GDT Initialized\n");
     IDT::init();
-    DINFO("IDT Initialized");
+    logger.log(Logger::Level::INFO, "IDT Initialized\n");
     
 
     if(data->ramfs == nullptr) {
@@ -89,21 +91,31 @@ extern "C" void _start(boot_t* data) {
     }
 
     ramfs = data->ramfs;
-    DINFO("ramfs loaded");
-    printf("%.*s (%s)\n", ramfs->size, static_cast<char*>(ramfs->address), data->info->name);
+    logger.log(Logger::Level::INFO, "ramfs loaded\n");
 
     if(data->memory_map == nullptr) {
         kpanic(nullptr, "Failed to get memory map");
     }
-
+    logger.log(Logger::Level::INFO, "Memory map loaded\n");
     
-    memory_map_t *memory_map = data->memory_map;
-    PMM::init(memory_map);
-    printf("%d bytes FREE\n", PMM::get_free());
+    // memory_map_t *memory_map = data->memory_map;
+    // PMM::init(memory_map);
+    // if(PMM::get_free() < 64000000) {
+    //     logger.log(Logger::Level::ERROR, "%d bytes free, Sphynx needs atleast 64MB", PMM::get_free());
+    //     hcf();
+    // } else {
+    //     logger.log(Logger::Level::INFO, "%d bytes free of physical RAM", PMM::get_free());
+    // }
+    // logger.log(Logger::Level::INFO, "PMM initialized");     
 
-    void* ptr = PMM::request_pages(2);
-    if(ptr == nullptr)
-        kpanic(nullptr, "Failed to test allocate");
+    // void* ptr = PMM::request_pages(2);
+    // if(ptr == nullptr)
+    //     kpanic(nullptr, "Failed to test allocate");
+
+    logger.log(Logger::Level::OK, "");
+    printf("\033[32m%.*s\033[0m\n", ramfs->size, static_cast<char*>(ramfs->address));
+    logger.log(Logger::Level::OK, "Bootloader: ");
+    printf("\033[32m%s\033[0m\n", data->info->name);
 
     halt();
 }
