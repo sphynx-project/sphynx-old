@@ -33,76 +33,61 @@ Description: Common CPU functions and utilities
 #include <string.hpp>
 
 void _kpanic_print_reg(const char* name, uint64_t value) {
-    KMPRINTF("  %-10s: 0x%016llx\n", name, value);
+    DPRINTF("\033[31m  %-12s: 0x%016llx\033[0m\n", name, value);
 }
 
-void kpanic(IDT::int_frame_t *frame, const char* reason) {
-    IDT::int_frame_t localFrame;
-    if (frame == nullptr) {
-        localFrame = {0xEEEEEEEE};
-    } else {
-        memcpy(&localFrame, frame, sizeof(IDT::int_frame_t));
-    }
+void _kpanic_handler(IDT::int_frame_t *frame, const char* file, int line, const char* reason) {
+    KMPRINTF("\033[31mKernel panic at \"%s:%d\", Reason: \"%s\"!\033[0m\n", file, line, reason);
+    DPRINTF("\033[31m--------------------\033[0m\n");
 
-    ftCtx->set_text_bg_rgb(ftCtx, 0xFF000000); // Black background
-    ftCtx->set_text_fg_rgb(ftCtx, 0xFFFF0000); // Red foreground
-    ftCtx->clear(ftCtx, true);
+    if (frame != nullptr) {
 
-    KMPRINTF("================================== KERNEL PANIC ==================================\n");
-    KMPRINTF("Location:    0x%.16llx\n", localFrame.rip);
-    KMPRINTF("Reason:      %s (0x%.2x)\n", reason, localFrame.vector);
-    KMPRINTF("----------------------------------------------------------------------------------\n");
+        DPRINTF("\033[31mREGISTER STATE:\033[0m\n");
+        _kpanic_print_reg("CR2", frame->cr2);
+        _kpanic_print_reg("CR3", frame->cr3);
+        _kpanic_print_reg("RAX", frame->rax);
+        _kpanic_print_reg("RBX", frame->rbx);
+        _kpanic_print_reg("RCX", frame->rcx);
+        _kpanic_print_reg("RDX", frame->rdx);
+        _kpanic_print_reg("RSI", frame->rsi);
+        _kpanic_print_reg("RDI", frame->rdi);
+        _kpanic_print_reg("RBP", frame->rbp);
+        _kpanic_print_reg("R8 ", frame->r8);
+        _kpanic_print_reg("R9 ", frame->r9);
+        _kpanic_print_reg("R10", frame->r10);
+        _kpanic_print_reg("R11", frame->r11);
+        _kpanic_print_reg("R12", frame->r12);
+        _kpanic_print_reg("R13", frame->r13);
+        _kpanic_print_reg("R14", frame->r14);
+        _kpanic_print_reg("R15", frame->r15);
+        _kpanic_print_reg("RIP", frame->rip);
+        _kpanic_print_reg("CS ", frame->cs);
+        _kpanic_print_reg("RFLAGS", frame->rflags);
+        _kpanic_print_reg("RSP", frame->rsp);
+        _kpanic_print_reg("SS ", frame->ss);
+        _kpanic_print_reg("DS ", frame->ds);
+        _kpanic_print_reg("ERR", frame->err);
+        _kpanic_print_reg("VECTOR", frame->vector);
 
-    if(frame != nullptr) {
-        KMPRINTF("REGISTER STATE:\n");
-        _kpanic_print_reg("CR2", localFrame.cr2);
-        _kpanic_print_reg("CR3", localFrame.cr3);
-        _kpanic_print_reg("RAX", localFrame.rax);
-        _kpanic_print_reg("RBX", localFrame.rbx);
-        _kpanic_print_reg("RCX", localFrame.rcx);
-        _kpanic_print_reg("RDX", localFrame.rdx);
-        _kpanic_print_reg("RSI", localFrame.rsi);
-        _kpanic_print_reg("RDI", localFrame.rdi);
-        _kpanic_print_reg("RBP", localFrame.rbp);
-        _kpanic_print_reg("R8 ", localFrame.r8);
-        _kpanic_print_reg("R9 ", localFrame.r9);
-        _kpanic_print_reg("R10", localFrame.r10);
-        _kpanic_print_reg("R11", localFrame.r11);
-        _kpanic_print_reg("R12", localFrame.r12);
-        _kpanic_print_reg("R13", localFrame.r13);
-        _kpanic_print_reg("R14", localFrame.r14);
-        _kpanic_print_reg("R15", localFrame.r15);
-        _kpanic_print_reg("RIP", localFrame.rip);
-        _kpanic_print_reg("CS ", localFrame.cs);
-        _kpanic_print_reg("RFLAGS", localFrame.rflags);
-        _kpanic_print_reg("RSP", localFrame.rsp);
-        _kpanic_print_reg("SS ", localFrame.ss);
-        _kpanic_print_reg("DS ", localFrame.ds);
-        _kpanic_print_reg("ERR", localFrame.err);
-        _kpanic_print_reg("VECTOR", localFrame.vector);
-        KMPRINTF("----------------------------------------------------------------------------------\n");
-        KMPRINTF("EXCEPTION INFO:\n");
-        if (localFrame.vector == 14) {
-            KMPRINTF("  Page Fault Details:\n");
-            KMPRINTF("    Operation:        %s\n", (localFrame.err & 0x1) ? "Protection Violation" : "Non-Present Page");
-            KMPRINTF("    Access Type:      %s\n", (localFrame.err & 0x2) ? "Write" : "Read");
-            KMPRINTF("    Privilege Level: %s\n", (localFrame.err & 0x4) ? "User Mode" : "Supervisor Mode");
-            if (localFrame.err & 0x8) {
-                KMPRINTF("    Reserved Write:  Yes\n");
-            }
-            if (localFrame.err & 0x10) {
-                KMPRINTF("    Instruction Fetch: Yes\n");
-            }
+        if (frame->vector == 14) {
+            DPRINTF("\033[31mEXCEPTION INFO:\033[0m\n");
+            DPRINTF("\033[31m  Page Fault Details:\033[0m\n");
+            DPRINTF("    Operation:        %s\n", (frame->err & 0x1) ? "Protection Violation" : "Non-Present Page");
+            DPRINTF("    Access Type:      %s\n", (frame->err & 0x2) ? "Write" : "Read");
+            DPRINTF("    Privilege Level: %s\n", (frame->err & 0x4) ? "User Mode" : "Supervisor Mode");
+            if (frame->err & 0x8) DPRINTF("    Reserved Write:  Yes\n");
+            if (frame->err & 0x10) DPRINTF("    Instruction Fetch: Yes\n");
         } else {
-            KMPRINTF("  Interrupt Number:  %lu\n", localFrame.vector);
-            KMPRINTF("  Error Code:        0x%016llx\n", localFrame.err);
+            DPRINTF("\033[31mEXCEPTION INFO:\033[0m\n");
+            DPRINTF("  Interrupt Number:  %lu\n", frame->vector);
+            DPRINTF("  Error Code:        0x%016llx\n", frame->err);
         }
-        KMPRINTF("----------------------------------------------------------------------------------\n");
     }
 
-    KMPRINTF("STACK TRACE:\n");
-    KMPRINTF("  (TODO)\n");
+    kdprintf("\033[31mSTACK TRACE:\n\033[0m");
+    kdprintf("\033[31m  (TODO)\n");
 
-    KMPRINTF("==================================================================================\n");
+    DPRINTF("\033[31m\033[0m");
+
     hcf();
 }

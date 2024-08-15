@@ -35,7 +35,7 @@ Description: Common modules for the OS
 #include <flanterm/flanterm.h>
 #include <flanterm/backends/fb.h>
 
-extern struct boot *boot_info;
+extern struct boot *bootInfo;
 extern struct framebuffer *framebuffer;
 extern struct file *ramfs;
 extern struct flanterm_context* ftCtx;

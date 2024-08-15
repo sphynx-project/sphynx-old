@@ -52,7 +52,7 @@ namespace PMM {
         for (int i = 0; i < memmap->region_count; i++) {
             memory_region_t *region = memmap->regions[i];
             if (region->type == MEMMAP_USABLE) {
-                printf("Usable entry at 0x%.16llx\n", region->base_address);
+                DPRINTF("Usable entry at 0x%.16llx\n", region->base_address);
                 topAddr = region->base_address + region->length;
                 if (topAddr > highAddr)
                     highAddr = topAddr;

@@ -37,7 +37,7 @@ Description: Sphynx kernel entry
 #include <core/mm/pmm.hpp>
 
 struct flanterm_context* ftCtx;
-struct boot *boot_info;
+struct boot *bootInfo;
 struct file *ramfs;
 struct framebuffer *framebuffer;
 
@@ -53,8 +53,11 @@ extern "C" void _start(boot_t* data) {
         hcf();
     }
 
-    boot_info = data;
+    bootInfo = data;
     framebuffer = data->framebuffer;
+
+    uint32_t defaultBg = 0x1b1c1b;
+	uint32_t defaultFg = 0xffffff;
 
     ftCtx = flanterm_fb_init(
         nullptr, nullptr, reinterpret_cast<uint32_t*>(framebuffer->address),
@@ -62,8 +65,8 @@ extern "C" void _start(boot_t* data) {
         framebuffer->pitch, framebuffer->red_mask_size,
         framebuffer->red_mask_shift, framebuffer->green_mask_size,
         framebuffer->green_mask_shift, framebuffer->blue_mask_size,
-        framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, nullptr,
-        nullptr, nullptr, nullptr, nullptr, 0, 0, 1, 0, 0, 0
+        framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, &defaultBg,
+        &defaultFg, nullptr, nullptr, nullptr, 0, 0, 1, 1, 1, 0
     );
 
     if (!ftCtx) {

@@ -43,4 +43,6 @@ Description: Common CPU functions and utilities
     halt();
 }
 
-void kpanic(IDT::int_frame_t *frame, const char* reason);
+void _kpanic_handler(IDT::int_frame_t *frame, const char* file, int line, const char* reason);
+
+#define kpanic(frame, reason) _kpanic_handler(frame, __FILE__, __LINE__, reason)

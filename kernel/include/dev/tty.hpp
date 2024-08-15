@@ -49,3 +49,10 @@ int kdprintf(const char* fmt, ...);
         kdprintf(fmt, ##__VA_ARGS__); \
         _DNEWLINE(); \
     } while (0)
+
+
+#if SPHYNX_VERBOSE
+#define DPRINTF KMPRINTF
+#else
+#define DPRINTF kdprintf
+#endif
