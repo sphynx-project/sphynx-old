@@ -103,20 +103,7 @@ extern "C" void _start(boot_t* data) {
         kpanic(nullptr, "Failed to get memory map");
     }
     logger.log(Logger::Level::INFO, "Memory map loaded\n");
-    
-    memory_map_t *memory_map = data->memory_map;
-    PMM::init(memory_map);
-    if(PMM::get_free() < 64000000) {
-        logger.log(Logger::Level::ERROR, "%d bytes free, Sphynx needs atleast 64MB\n", PMM::get_free());
-        hcf();
-    } else {
-        logger.log(Logger::Level::INFO, "%d bytes free of physical RAM\n", PMM::get_free());
-    }
-    logger.log(Logger::Level::INFO, "PMM initialized");     
-
-    void* ptr = PMM::request_pages(2);
-    if(ptr == nullptr)
-        kpanic(nullptr, "Failed to test allocate");
+    logger.log(Logger::Level::DEBUG, "Hello, World\n");
 
     halt();
 }
