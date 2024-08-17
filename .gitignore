@@ -4,7 +4,10 @@
 *.fd
 *.elf
 
+.fenix-cache
+
 /deps/
 /bin/
 /.vscode/
 /mnt/
+/obj/
