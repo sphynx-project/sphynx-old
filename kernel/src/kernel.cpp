@@ -104,6 +104,9 @@ extern "C" void _start(boot_t* data) {
     }
     logger.log(Logger::Level::INFO, "Memory map loaded\n");
     logger.log(Logger::Level::DEBUG, "Hello, World\n");
+    logger.log(Logger::Level::DEBUG, "Screen Size: ");
+    printf("%dx%d\n", framebuffer->width, framebuffer->height);
+    
 
     halt();
 }

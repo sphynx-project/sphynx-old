@@ -1,0 +1,8 @@
+./kernel/src/stdlib/string.cpp f7e4690dac4a68d20bfb52b87c6c0c6d35c98bcbea4b7026cb79d79b98732bf9
+./kernel/src/sys/cpu.cpp 257dfb28da7bd57fd0f51d47de98f5c188772a8d9506bbcf53e9847ce5ff3eaa
+./kernel/src/core/idt.cpp 01d4cb0371e90029ad93839d785128c8f42410bba589a4cf5c2b5abd61a5567b
+./kernel/src/core/mm/pmm.cpp 391d6e42457a0132f0144778a1bc9dccf78e7126cf3bddcfcb43a3d763ee4732
+./kernel/src/core/gdt.cpp 0a286e248e6ee09a9828650c7e9abc5cb7851b5c5e276e8db2a52a73e0ca40ed
+./kernel/src/kernel.cpp a384308ad8a4425b9d29550293772e33d08c177da5dd08ecb53d3152e01a010d
+./kernel/src/dev/serial.cpp 577986504a1af1ba3c08e700c7343ad59d1cd08ef8e48889a3af1298f0908b6c
+./kernel/src/dev/tty.cpp dba17975e689d41038fbd8c789d0a096a09ac0182b0d42d1ea8b87e072af064c

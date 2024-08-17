@@ -1,0 +1,16 @@
+#!/bin/bash
+
+project_kind="C-Simple"
+
+targets=("build" "clean")
+default_target="build"
+
+function build_pre {
+    # Executre pre-build scripts here
+    return
+}
+
+function clean_pre {
+    cleaning=1
+    return
+}
