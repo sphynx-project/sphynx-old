@@ -121,11 +121,20 @@ gen-img: all
 	    echo " + rm -rf mnt"; \
 	    rm -rf mnt; \
 	fi
+		
+.PHONY: gen-iso
+gen-iso: gen-img
+	@echo " + Creating ISO with xorriso"
+	@mkdir -p iso/boot
+	@cp boot.img iso/boot/
+	@xorriso -as mkisofs -r -J -V "SPHYNX_OS" -o sphynx.iso -e boot.img -no-emul-boot iso/boot/
+	@rm -rf iso
+
 
 .PHONY: run
-run: gen-img $(OVMF)
-	@echo " + qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -drive if=ide,format=raw,file=boot.img -debugcon stdio"
-	@qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -drive if=ide,format=raw,file=boot.img -debugcon stdio
+run: gen-iso $(OVMF)
+	@echo " + qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -cdrom sphynx.iso -debugcon stdio"
+	@qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -cdrom sphynx.iso -debugcon stdio
 
 .PHONY: clean
 clean:

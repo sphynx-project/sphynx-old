@@ -3,6 +3,7 @@
 *.img
 *.fd
 *.elf
+*.iso
 
 /deps/
 /bin/
