@@ -90,8 +90,8 @@ gen-img: all
 	    mcopy -i boot.img $(TARGET_BOOT) ::/EFI/BOOT/BOOTX64.efi; \
 		echo " + mcopy -i $(TARGET_TEST) ::/sphynx/kernel.elf"; \
 		mcopy -i $(TARGET_TEST) ::/sphynx/kernel.elf; \
-		echo " + mcopy -i test.txt ::/sphynx/ramfs"; \
-		mcopy -i test.txt ::/sphynx/ramfs; \
+		echo " + mcopy -i image.seif ::/sphynx/ramfs"; \
+		mcopy -i image.seif ::/sphynx/ramfs; \
 		echo " + mcopy -i $(BOOT_CONF) ::boot.conf"; \
 		mcopy -i $(BOOT_CONF) ::boot.conf; \
 	else \
@@ -112,8 +112,8 @@ gen-img: all
 	    sudo cp $(TARGET_BOOT) mnt/EFI/BOOT/BOOTX64.efi; \
 		echo " + sudo cp $(TARGET_TEST) mnt/sphynx/kernel.elf"; \
 		sudo cp $(TARGET_TEST) mnt/sphynx/kernel.elf; \
-		echo " + sudo cp test.txt mnt/sphynx/ramfs"; \
-		sudo cp test.txt mnt/sphynx/ramfs; \
+		echo " + sudo cp image.seif mnt/sphynx/ramfs"; \
+		sudo cp image.seif mnt/sphynx/ramfs; \
 		echo " + sudo cp $(BOOT_CONF) mnt/boot.conf"; \
 		sudo cp $(BOOT_CONF) mnt/boot.conf; \
 	    echo " + sudo umount mnt"; \
