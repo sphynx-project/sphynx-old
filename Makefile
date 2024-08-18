@@ -14,6 +14,8 @@ TARGET_BOOT := $(BIN_DIR)/BOOTX64.efi
 OVMF := $(DEPS_DIR)/ovmf/RELEASEX64_OVMF.fd
 ROOT_DIR := $(shell pwd)
 
+RAMFS_OUT := ramfs.tar
+
 BOOT_CONF := $(KERNEL_DIR)/boot.conf
 
 all: setup deps-download-sphynxboot kernel $(TARGET_BOOT)
@@ -77,8 +79,14 @@ bootloader: deps-download-sphynxboot
 	@echo " + $(MAKE) -C $(BOOT_DIR)"
 	@$(MAKE) -C $(BOOT_DIR)
 
+
+.PHONY: ramfs
+ramfs:
+	@echo " + cd ramfs; tar -cvf $(RAMFS_OUT) ramfs/*"
+	@cd ramfs; tar -cvf ../$(RAMFS_OUT) * > /dev/null 2>&1
+	
 .PHONY: gen-img
-gen-img: all
+gen-img: all ramfs
 	@if [ "$(shell uname -s)" = "Darwin" ]; then \
 		echo " + dd if=/dev/zero of=boot.img bs=1m count=64"; \
 	    dd if=/dev/zero of=boot.img bs=1m count=64; \
@@ -90,8 +98,8 @@ gen-img: all
 	    mcopy -i boot.img $(TARGET_BOOT) ::/EFI/BOOT/BOOTX64.efi; \
 		echo " + mcopy -i $(TARGET_TEST) ::/sphynx/kernel.elf"; \
 		mcopy -i $(TARGET_TEST) ::/sphynx/kernel.elf; \
-		echo " + mcopy -i image.seif ::/sphynx/ramfs"; \
-		mcopy -i image.seif ::/sphynx/ramfs; \
+		echo " + mcopy -i $(RAMFS_OUT) ::/sphynx/ramfs"; \
+		mcopy -i $(RAMFS_OUT) ::/sphynx/ramfs; \
 		echo " + mcopy -i $(BOOT_CONF) ::boot.conf"; \
 		mcopy -i $(BOOT_CONF) ::boot.conf; \
 	else \
@@ -112,8 +120,8 @@ gen-img: all
 	    sudo cp $(TARGET_BOOT) mnt/EFI/BOOT/BOOTX64.efi; \
 		echo " + sudo cp $(TARGET_TEST) mnt/sphynx/kernel.elf"; \
 		sudo cp $(TARGET_TEST) mnt/sphynx/kernel.elf; \
-		echo " + sudo cp image.seif mnt/sphynx/ramfs"; \
-		sudo cp image.seif mnt/sphynx/ramfs; \
+		echo " + sudo cp $(RAMFS_OUT) mnt/sphynx/ramfs"; \
+		sudo cp $(RAMFS_OUT) mnt/sphynx/ramfs; \
 		echo " + sudo cp $(BOOT_CONF) mnt/boot.conf"; \
 		sudo cp $(BOOT_CONF) mnt/boot.conf; \
 	    echo " + sudo umount mnt"; \
@@ -142,5 +150,5 @@ clean:
 	@$(MAKE) -C $(BOOT_DIR) clean
 	@echo " + $(MAKE) -C $(KERNEL_DIR) clean"
 	@$(MAKE) -C $(KERNEL_DIR) clean
-	@echo " + Removing $(BIN_DIR) mnt boot.img $(DEPS_DIR)"
-	@rm -rf $(BIN_DIR) mnt boot.img $(DEPS_DIR)
+	@echo " + rm -rf $(BIN_DIR) mnt boot.img $(DEPS_DIR) $(RAMFS_OUT)"
+	@rm -rf $(BIN_DIR) mnt boot.img $(DEPS_DIR) $(RAMFS_OUT)

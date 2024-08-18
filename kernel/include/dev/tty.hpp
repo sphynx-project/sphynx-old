@@ -36,6 +36,8 @@ Description: Sphynx TTY system
 int kprintf(const char* fmt, ...);
 int kdprintf(const char* fmt, ...);
 
+void vprintf(const char* fmt, va_list args);
+
 #define KMPRINTF(fmt, ...) \
     do { \
         kprintf(fmt, ##__VA_ARGS__); \
@@ -49,9 +51,9 @@ int kdprintf(const char* fmt, ...);
 #endif
 
 #if SPHYNX_VERBOSE
-#define DPRINTF KMPRINTF
+#define DPRINTF(fmt, ...) KMPRINTF(fmt, ##__VA_ARGS__)
 #else
-#define DPRINTF kdprintf
+#define DPRINTF(fmt, ...) kdprintf(fmt, ##__VA_ARGS__)
 #endif
 
 class Logger {
@@ -79,7 +81,7 @@ public:
 
         va_list args;
         va_start(args, fmt);
-        printf(fmt, args);
+        vprintf(fmt, args);
         va_end(args);
 
         printf("\033[0m");
@@ -126,11 +128,11 @@ private:
 
     const char* get_color(Level lvl) const {
         switch (lvl) {
-            case INFO: return "\x1b[38;2;235;203;244m";
-            case OK: return "\x1b[38;2;191;204;148m";
-            case WARN: return "\x1b[38;2;255;215;0m";
-            case ERROR: return "\x1b[38;2;255;69;58m";
-            case DEBUG: return "\x1b[38;2;141;145;139m";
+            case INFO: return "\x1b[38;2;210;180;140m";
+            case OK: return "\x1b[38;2;205;133;63m";
+            case WARN: return "\x1b[38;2;218;165;32m";
+            case ERROR: return "\x1b[38;2;139;69;19m";
+            case DEBUG: return "\x1b[38;2;160;82;45m";
             default: return "\033[0m";
         }
     }
@@ -142,7 +144,7 @@ private:
             case WARN: return "WARN";
             case ERROR: return "ERROR";
             case DEBUG: return "DEBUG";
-            default: return "UNKOWN";
+            default: return "UNKNOWN";
         }
     }
 };

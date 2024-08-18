@@ -36,77 +36,12 @@ Description: Sphynx kernel entry
 #include <core/idt.hpp>
 #include <core/mm/pmm.hpp>
 #include <external/seif.h>
+#include <data/tar.hpp>
 
 struct flanterm_context* ftCtx;
 struct boot *bootInfo;
 struct file *ramfs;
 struct framebuffer *framebuffer;
-
-
-void putpixel(framebuffer_t *fb, uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
-    if (x >= fb->width || y >= fb->height) {
-        return;
-    }
-
-    uint32_t *pixel_addr = (uint32_t *)(fb->address + y * fb->pitch + x * (fb->bpp / 8));
-
-    uint32_t color = 0xFF000000 | (r << 16) | (g << 8) | b;
-
-    *pixel_addr = color;
-}
-
-void draw_image(framebuffer_t *fb, uint8_t *image) {
-    Logger logger("SeifImage");
-    SEIF_Header *header = (SEIF_Header *)image;
-    if(header->magic[0] != 'S' || header->magic[1] != 'E' || header->magic[2] != 'I' || header->magic[3] != 'F') {
-        logger.log(Logger::Level::ERROR, "Failed to draw image: Invalid image magic!\n");
-        return;
-    }
-    
-    uint8_t encoding_size = 0;
-    if(header->encoding == SEIF_ENCODING_RGB) {
-        encoding_size = 3;
-    } else if(header->encoding == SEIF_ENCODING_RGBA || header->encoding == SEIF_ENCODING_ARGB) {
-        encoding_size = 4;
-    }
-
-    SEIF_ChunkHeader *chunk_header = (SEIF_ChunkHeader *)(image + sizeof(SEIF_Header));
-    if(header->chunk_count != 1 || 
-       chunk_header->width != header->meta.width || 
-       chunk_header->height != header->meta.height) {
-        logger.log(Logger::Level::ERROR, "Unsupported image format or multiple chunks!\n");
-        return;
-    }
-
-    uint8_t *data = (uint8_t *)(image + sizeof(SEIF_Header) + sizeof(SEIF_ChunkHeader));
-
-    for(int y = 0; y < header->meta.height; y++) {
-        for(int x = 0; x < header->meta.width; x++) {
-            int index = (y * header->meta.width + x) * encoding_size;
-
-            uint8_t r = 0, g = 0, b = 0, a = 255;
-
-            if(header->encoding == SEIF_ENCODING_RGB) {
-                r = data[index];
-                g = data[index + 1];
-                b = data[index + 2];
-            } else if(header->encoding == SEIF_ENCODING_RGBA) {
-                r = data[index];
-                g = data[index + 1];
-                b = data[index + 2];
-                a = data[index + 3];
-            } else if(header->encoding == SEIF_ENCODING_ARGB) {
-                a = data[index];
-                r = data[index + 1];
-                g = data[index + 2];
-                b = data[index + 3];
-            }
-
-            (void)a;
-            putpixel(fb, x, y, r, g, b);
-        }
-    }
-}
 
 extern "C" void _start(boot_t* data) {
     kdprintf("\033c");
@@ -123,7 +58,7 @@ extern "C" void _start(boot_t* data) {
     bootInfo = data;
     framebuffer = data->framebuffer;
 
-    uint32_t defaultBg = 0x0b0500;
+    uint32_t defaultBg = 0x1c1c1c;
 	uint32_t defaultFg = 0xffffff;
 
     ftCtx = flanterm_fb_init(
@@ -133,7 +68,7 @@ extern "C" void _start(boot_t* data) {
         framebuffer->red_mask_shift, framebuffer->green_mask_size,
         framebuffer->green_mask_shift, framebuffer->blue_mask_size,
         framebuffer->blue_mask_shift, nullptr, nullptr, nullptr, &defaultBg,
-        &defaultFg, nullptr, nullptr, nullptr, 0, 0, 1, 1, 1, 5
+        &defaultFg, nullptr, nullptr, nullptr, 0, 0, 1, 1, 1, 0
     );
 
     if (!ftCtx) {
@@ -150,17 +85,13 @@ extern "C" void _start(boot_t* data) {
     logger.set_level(Logger::Level::INFO);
     #endif
 
-    uint8_t *image = (uint8_t*)data->ramfs->address;
-
-    draw_image(data->framebuffer, image);
-
-    logger.log(Logger::Level::INFO, "Flanterm Initialized\n");
+    logger.log(Logger::Level::OK, "Flanterm Initialized\n");
     
 
     GDT::init();
-    logger.log(Logger::Level::INFO, "GDT Initialized\n");
+    logger.log(Logger::Level::OK, "GDT Initialized\n");
     IDT::init();
-    logger.log(Logger::Level::INFO, "IDT Initialized\n");
+    logger.log(Logger::Level::OK, "IDT Initialized\n");
     
 
     if(data->ramfs == nullptr) {
@@ -178,6 +109,14 @@ extern "C" void _start(boot_t* data) {
     printf("%dx%d\n", framebuffer->width, framebuffer->height);
     logger.log(Logger::Level::DEBUG, "Bootloader: ");
     printf("%s\n", bootInfo->info->name);
+    
+    char* ramfs_buff = static_cast<char*>(ramfs->address);
+    list_dir_tar(ramfs_buff, ramfs->size);
+
+    File hello = get_file_tar(ramfs_buff, ramfs->size, "sys/welcome.txt");
+    logger.log(Logger::Level::INFO, "%s (%d bytes): \"%s\"\n", hello.name, hello.size, hello.data);
+
+
 
     halt();
 }

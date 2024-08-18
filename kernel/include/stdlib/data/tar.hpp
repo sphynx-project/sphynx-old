@@ -1,7 +1,7 @@
 /*
 Sphynx Operating System
 
-File: string.hpp
+File: tar.hpp
 Author: Kevin Alavik
 Year: 2024
 
@@ -25,25 +25,43 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Description: POSIX C string functions
+Description: TAR Parsing library
 */
 
 #pragma once
 
+#include <stdint.h>
 #include <stddef.h>
-#include <common.hpp>
+#include <string.hpp>
 
-extern "C" {
-    void* memset(void* d, int c, size_t n);
-    void* memcpy(void* dest, const void* src, size_t n);
-    void* memmove(void* dest, const void* src, size_t n);
-    size_t strlen(const char* s);
-    int strcmp(const char* s1, const char* s2);
-    char* strcpy(char* dest, const char* src);
-    char* strcat(char* dest, const char* src);
-    const char* strchr(const char* s, int c);
-    const char* strrchr(const char* s, int c);
-    const char* strstr(const char* haystack, const char* needle);
-    char* strncpy(char* dest, const char* src, size_t n);
-    int strncmp(const char* s1, const char* s2, size_t n);
-}
+#define TAR_BLOCK_SIZE 512
+
+struct tar_header {
+    char name[100];
+    char mode[8];
+    char uid[8];
+    char gid[8];
+    char size[12];
+    char mtime[12];
+    char chksum[8];
+    char typeflag;
+    char linkname[100];
+    char magic[6];
+    char version[2];
+    char uname[32];
+    char gname[32];
+    char devmajor[8];
+    char devminor[8];
+    char prefix[155];
+    char pad[12];
+};
+
+struct File {
+    const char* name;
+    uint32_t size;
+    void* data;
+    int is_directory;
+};
+
+void list_dir_tar(const void* buffer, size_t size);
+File get_file_tar(const void* buffer, size_t size, const char* path);

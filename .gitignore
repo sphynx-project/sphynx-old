@@ -4,6 +4,7 @@
 *.fd
 *.elf
 *.iso
+*.tar
 
 /deps/
 /bin/
