@@ -116,7 +116,7 @@ extern "C" void _start(boot_t* data) {
     File hello = get_file_tar(ramfs_buff, ramfs->size, "sys/welcome.txt");
     logger.log(Logger::Level::INFO, "%s (%d bytes): \"%s\"\n", hello.name, hello.size, hello.data);
 
-
+    
 
     halt();
 }
