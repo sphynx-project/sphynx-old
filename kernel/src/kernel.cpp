@@ -58,8 +58,8 @@ extern "C" void _start(boot_t* data) {
     bootInfo = data;
     framebuffer = data->framebuffer;
 
-    uint32_t defaultBg = 0x1c1c1c;
-	uint32_t defaultFg = 0xffffff;
+    uint32_t defaultBg = 0x2e3440;
+	uint32_t defaultFg = 0xd8dee9;
 
     ftCtx = flanterm_fb_init(
         nullptr, nullptr, reinterpret_cast<uint32_t*>(framebuffer->address),
@@ -86,13 +86,12 @@ extern "C" void _start(boot_t* data) {
     #endif
 
     logger.log(Logger::Level::OK, "Flanterm Initialized\n");
-    
 
     GDT::init();
     logger.log(Logger::Level::OK, "GDT Initialized\n");
     IDT::init();
     logger.log(Logger::Level::OK, "IDT Initialized\n");
-    
+
 
     if(data->ramfs == nullptr) {
         kpanic(nullptr, "Sphynx got no ramfs, expected ramfs in /sphynx/ramfs");
@@ -109,14 +108,12 @@ extern "C" void _start(boot_t* data) {
     printf("%dx%d\n", framebuffer->width, framebuffer->height);
     logger.log(Logger::Level::DEBUG, "Bootloader: ");
     printf("%s\n", bootInfo->info->name);
-    
+
     char* ramfs_buff = static_cast<char*>(ramfs->address);
     list_dir_tar(ramfs_buff, ramfs->size);
 
     File hello = get_file_tar(ramfs_buff, ramfs->size, "sys/welcome.txt");
     logger.log(Logger::Level::INFO, "%s (%d bytes): \"%s\"\n", hello.name, hello.size, hello.data);
-
-    
 
     halt();
 }

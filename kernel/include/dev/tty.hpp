@@ -128,11 +128,11 @@ private:
 
     const char* get_color(Level lvl) const {
         switch (lvl) {
-            case INFO: return "\x1b[38;2;210;180;140m";
-            case OK: return "\x1b[38;2;205;133;63m";
-            case WARN: return "\x1b[38;2;218;165;32m";
-            case ERROR: return "\x1b[38;2;139;69;19m";
-            case DEBUG: return "\x1b[38;2;160;82;45m";
+            case INFO: return "\x1b[38;2;129;161;193m";
+            case OK: return "\x1b[38;2;163;190;140m";
+            case WARN: return "\x1b[38;2;235;203;139m";
+            case ERROR: return "\x1b[38;2;191;97;106m";
+            case DEBUG: return "\x1b[38;2;94;129;172m";
             default: return "\033[0m";
         }
     }
