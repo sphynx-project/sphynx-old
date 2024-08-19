@@ -3,7 +3,7 @@ C = clang
 ASM = nasm
 LD = ld.lld
 
-CFLAGS = -O0 -Wall -Werror -g -ffreestanding -Wno-instantiation-after-specialization -Wno-int-conversion -Wno-infinite-recursion \
+CFLAGS = -O0 -Wall -Werror -g -ffreestanding -Wno-instantiation-after-specialization -Wno-unknown-warning-option -Wno-int-conversion -Wno-infinite-recursion \
          -fno-stack-protector -fno-stack-check -fno-omit-frame-pointer -fno-lto -m64 \
          -march=x86-64 -mabi=sysv -mno-80387 -mno-mmx -mno-red-zone -fno-pie --target=x86_64-pc-none-elf \
          -fno-builtin -mno-sse -mno-sse2 -mno-avx

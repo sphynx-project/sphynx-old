@@ -90,8 +90,8 @@ gen-img: all ramfs
 	@if [ "$(shell uname -s)" = "Darwin" ]; then \
 		echo " + dd if=/dev/zero of=boot.img bs=1m count=64"; \
 	    dd if=/dev/zero of=boot.img bs=1m count=64; \
-		echo " + mkfs.fat -F 32 -n EFI_SYSTEM boot.img"; \
-	    mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
+		echo " + sudo mkfs.fat -F 32 -n EFI_SYSTEM boot.img"; \
+	    sudo mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
 		echo " + mmd -i boot.img ::/EFI ::/EFI/BOOT"; \
 	    mmd -i boot.img ::/EFI ::/EFI/BOOT; \
 		echo " + mcopy -i boot.img $(TARGET_BOOT) ::/EFI/BOOT/BOOTX64.efi"; \
@@ -105,8 +105,8 @@ gen-img: all ramfs
 	else \
 	    echo " + dd if=/dev/zero of=boot.img bs=1M count=64"; \
 	    dd if=/dev/zero of=boot.img bs=1M count=64; \
-	    echo " + mkfs.fat -F 32 -n EFI_SYSTEM boot.img"; \
-	    mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
+	    echo " + sudo mkfs.fat -F 32 -n EFI_SYSTEM boot.img"; \
+	    sudo mkfs.fat -F 32 -n EFI_SYSTEM boot.img; \
 	    echo " + sudo mount -o loop boot.img mnt"; \
 	    mkdir -p mnt; \
 	    sudo mount -o loop boot.img mnt; \
@@ -129,20 +129,11 @@ gen-img: all ramfs
 	    echo " + rm -rf mnt"; \
 	    rm -rf mnt; \
 	fi
-		
-.PHONY: gen-iso
-gen-iso: gen-img
-	@echo " + Creating ISO with xorriso"
-	@mkdir -p iso/boot
-	@cp boot.img iso/boot/
-	@xorriso -as mkisofs -r -J -V "SPHYNX_OS" -o sphynx.iso -e boot.img -no-emul-boot iso/boot/
-	@rm -rf iso
-
 
 .PHONY: run
-run: gen-iso $(OVMF)
-	@echo " + qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -cdrom sphynx.iso -debugcon stdio"
-	@qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -cdrom sphynx.iso -debugcon stdio
+run: gen-img $(OVMF)
+	@echo " + qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -drive if=ide,format=raw,file=boot.img -debugcon stdio"
+	@qemu-system-x86_64 -m 2G -drive if=pflash,format=raw,readonly=on,file=$(OVMF) -drive if=ide,format=raw,file=boot.img -debugcon stdio
 
 .PHONY: clean
 clean:
