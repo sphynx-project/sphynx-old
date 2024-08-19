@@ -108,12 +108,10 @@ extern "C" void _start(boot_t* data) {
     printf("%dx%d\n", framebuffer->width, framebuffer->height);
     logger.log(Logger::Level::DEBUG, "Bootloader: ");
     printf("%s\n", bootInfo->info->name);
+    printf("\n");
 
-    char* ramfs_buff = static_cast<char*>(ramfs->address);
-    list_dir_tar(ramfs_buff, ramfs->size);
-
-    File hello = get_file_tar(ramfs_buff, ramfs->size, "sys/welcome.txt");
-    logger.log(Logger::Level::INFO, "%s (%d bytes): \"%s\"\n", hello.name, hello.size, hello.data);
+    File msg = get_file_tar(static_cast<char*>(ramfs->address), ramfs->size, "sys/welcome.txt");
+    printf("%s\n", msg.data);
 
     halt();
 }
