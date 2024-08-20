@@ -104,14 +104,12 @@ extern "C" void _start(boot_t* data) {
         kpanic(nullptr, "Failed to get memory map");
     }
     logger.log(Logger::Level::INFO, "Memory map loaded\n");
-    logger.log(Logger::Level::DEBUG, "Screen Size: ");
-    printf("%dx%d\n", framebuffer->width, framebuffer->height);
-    logger.log(Logger::Level::DEBUG, "Bootloader: ");
-    printf("%s\n", bootInfo->info->name);
-    printf("\n");
+    logger.log(Logger::Level::DEBUG, "Screen Size: %dx%d\n", framebuffer->width, framebuffer->height);
+    logger.log(Logger::Level::DEBUG, "Bootloader: %s\n", bootInfo->info->name);
 
     File msg = get_file_tar(static_cast<char*>(ramfs->address), ramfs->size, "sys/welcome.txt");
     printf("%s\n", msg.data);
+    logger.log(Logger::Level::INFO, "We have nothing to do...\n");
 
     halt();
 }
