@@ -59,7 +59,7 @@ extern "C" void _start(boot_t* data) {
     framebuffer = data->framebuffer;
 
     uint32_t defaultBg = 0x2e3440;
-	uint32_t defaultFg = 0xd8dee9;
+    uint32_t defaultFg = 0xd8dee9;
 
     ftCtx = flanterm_fb_init(
         nullptr, nullptr, reinterpret_cast<uint32_t*>(framebuffer->address),
@@ -108,8 +108,7 @@ extern "C" void _start(boot_t* data) {
     logger.log(Logger::Level::DEBUG, "Bootloader: %s\n", bootInfo->info->name);
 
     File msg = get_file_tar(static_cast<char*>(ramfs->address), ramfs->size, "sys/welcome.txt");
+    logger.log(Logger::Level::OK, "Kernel setup successfully.\n");
     printf("%s\n", msg.data);
-    logger.log(Logger::Level::INFO, "We have nothing to do...\n");
-
     halt();
 }
